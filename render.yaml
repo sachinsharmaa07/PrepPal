@@ -1,0 +1,43 @@
+services:
+  - type: web
+    name: preppal-api
+    env: node
+    buildCommand: pnpm install && pnpm build --filter=@preppal/api
+    startCommand: pnpm start --filter=@preppal/api
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: preppal-redis
+          envVarKey: REDIS_URL
+      - key: GROQ_API_KEY
+        sync: false
+      - key: JUDGE0_URL
+        sync: false
+
+  - type: worker
+    name: preppal-workers
+    env: node
+    buildCommand: pnpm install && pnpm build --filter=@preppal/workers
+    startCommand: pnpm start --filter=@preppal/workers
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: preppal-redis
+          envVarKey: REDIS_URL
+
+  - type: redis
+    name: preppal-redis
+    ipAllowList: [] # only allow internal connections
+    plan: free

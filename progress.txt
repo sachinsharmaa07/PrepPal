@@ -28,8 +28,8 @@
 - [x] Recruiter Dashboard (Jobs, Applicants)
 - [x] Admin Dashboard (Moderation, Reports, Analytics)
 
-## Phase 4: Cloud Infrastructure & Deployment (Pending)
-- [ ] Vercel deployment for Frontend
-- [ ] Render deployment for Backend API + Workers
-- [ ] AWS EC2 (t2.micro) for Judge0
-- [ ] AWS S3 setup for Resume and Avatar storage
+## Phase 4: Cloud Infrastructure & Deployment (Completed)
+- [x] Vercel deployment for Frontend
+- [x] Render deployment for API and Background Workers
+- [x] AWS EC2 setup for Judge0 Docker container
+- [x] CI/CD pipeline using GitHub Actionsr Resume and Avatar storage
