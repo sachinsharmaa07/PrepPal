@@ -6,14 +6,14 @@
 - Required API keys (GROQ_API_KEY) collected and stored securely.
 - CodeSach repository available for reuse in `CodeSach/`.
 
-## Phase 1: MVP Backend Setup (In Progress)
+## Phase 1: MVP Backend Setup (Completed)
 - [x] Initial GitHub Repo setup
-- [ ] Initialize modular monolith structure (Express/NestJS)
-- [ ] Setup Prisma & PostgreSQL database schema (neon/supabase)
-- [ ] Implement Auth Module (JWT + Role-Based Access)
-- [ ] Port `CodeSach` coding platform logic into the `coding` module
-- [ ] Setup Judge0 Docker container for code execution
-- [ ] Setup BullMQ + Redis for background workers
+- [x] Initialize modular monolith structure (Express/NestJS)
+- [x] Setup Prisma & PostgreSQL database schema (neon/supabase)
+- [x] Implement Auth Module (JWT + Role-Based Access)
+- [x] Port `CodeSach` coding platform logic into the `coding` module
+- [x] Setup Judge0 Docker container for code execution
+- [x] Setup BullMQ + Redis for background workers
 
 ## Phase 2: Core Platform Features (Completed)
 - [x] Resume Parser & ATS Scoring module
@@ -32,4 +32,8 @@
 - [x] Vercel deployment for Frontend
 - [x] Render deployment for API and Background Workers
 - [x] AWS EC2 setup for Judge0 Docker container
-- [x] CI/CD pipeline using GitHub Actionsr Resume and Avatar storage
+- [x] CI/CD pipeline using GitHub Actions
+
+## Phase 5: Polish & Security Enhancements (Completed)
+- [x] Google OAuth Integration (Token-based flow via React)
+- [x] Comprehensive `.gitignore` and remote repository cleanup
