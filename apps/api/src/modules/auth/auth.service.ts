@@ -1,6 +1,10 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import prisma from '../../config/db';
+import { OAuth2Client } from 'google-auth-library';
+
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 export class AuthService {
   private jwtSecret: string;
@@ -61,6 +65,56 @@ export class AuthService {
 
     if (!isValid) {
       throw new Error('Invalid email or password');
+    }
+
+    const accessToken = jwt.sign(
+      { userId: user.id, role: user.role },
+      this.jwtSecret,
+      { expiresIn: '15m' }
+    );
+
+    const { passwordHash: _, ...userWithoutPassword } = user;
+
+    return {
+      user: userWithoutPassword,
+      accessToken,
+    };
+  }
+
+  async googleLogin(idToken: string) {
+    if (!GOOGLE_CLIENT_ID) {
+      throw new Error('Google OAuth is not configured on the server');
+    }
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken,
+      audience: GOOGLE_CLIENT_ID,
+    });
+    
+    const payload = ticket.getPayload();
+    if (!payload || !payload.email) {
+      throw new Error('Invalid Google token payload');
+    }
+
+    const { email, name, picture } = payload;
+
+    let user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+      const passwordHash = await bcrypt.hash(randomPassword, 10);
+      
+      user = await prisma.user.create({
+        data: {
+          email,
+          name: name || 'Google User',
+          passwordHash,
+          role: 'STUDENT',
+          profile: {
+            create: { avatarUrl: picture },
+          },
+        },
+      });
     }
 
     const accessToken = jwt.sign(

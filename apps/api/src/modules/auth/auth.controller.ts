@@ -36,4 +36,15 @@ export class AuthController {
       }
     }
   };
+
+  googleLogin = async (req: Request, res: Response) => {
+    try {
+      const { idToken } = req.body;
+      const result = await this.authService.googleLogin(idToken);
+      res.status(200).json(success(result));
+    } catch (err: any) {
+      console.error('Google login error:', err);
+      res.status(401).json(error('UNAUTHORIZED', err.message || 'Google login failed'));
+    }
+  };
 }

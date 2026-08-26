@@ -17,3 +17,9 @@ export const loginSchema = z.object({
     password: z.string().min(1, 'Password is required'),
   }),
 });
+
+export const googleLoginSchema = z.object({
+  body: z.object({
+    idToken: z.string().min(1, 'ID Token is required'),
+  }),
+});
