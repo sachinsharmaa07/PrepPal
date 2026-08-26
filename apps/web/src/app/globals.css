@@ -1,6 +1,5 @@
 @import "tailwindcss";
 
-:root {
 @theme {
   --color-border: var(--border);
   --color-input: var(--input);
@@ -28,10 +27,40 @@
 
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
 @layer base {
   :root {
+    /* Light Mode (Fallback/Future) */
+    --background: #ffffff;
+    --foreground: #020617;
+    --card: #f8fafc;
+    --card-foreground: #020617;
+    --popover: #ffffff;
+    --popover-foreground: #020617;
+    --primary: #4f46e5;
+    --primary-foreground: #ffffff;
+    --secondary: #f1f5f9;
+    --secondary-foreground: #0f172a;
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+    --accent: #f1f5f9;
+    --accent-foreground: #0f172a;
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
+    --border: #e2e8f0;
+    --input: #e2e8f0;
+    --ring: #4f46e5;
+    --radius: 0.5rem;
+  }
+  
+  .dark {
+    /* Dark Mode (Default for PrepPal) */
     --background: #020617;
     --foreground: #f8fafc;
     --card: #0f172a;
@@ -51,7 +80,6 @@
     --border: #1e293b;
     --input: #1e293b;
     --ring: #4f46e5;
-    --radius: 0.5rem;
   }
 }
 

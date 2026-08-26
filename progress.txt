@@ -37,3 +37,46 @@
 ## Phase 5: Polish & Security Enhancements (Completed)
 - [x] Google OAuth Integration (Token-based flow via React)
 - [x] Comprehensive `.gitignore` and remote repository cleanup
+
+---
+
+## Phase 6: Design System & Visual Identity Overhaul (Pending)
+- [ ] Define a real design system in `apps/web/src/styles/` (colors, typography, spacing)
+- [ ] Document all tokens in `apps/web/src/styles/design-tokens.md`
+- [ ] Proper dark mode implementation (`next-themes`)
+- [ ] Rebuild landing page (`/`) as a marketing page
+- [ ] Custom illustrations or consistent icon set (`lucide-react`)
+- [ ] Empty states for all list views (jobs, submissions, notifications)
+- [ ] Loading states: skeleton screens for all data-fetching views
+- [ ] Shared `<ErrorState />` component for failed fetches
+
+## Phase 7: Micro-interactions, Animation & Motion Design (Pending)
+- [ ] Install and configure `framer-motion`
+- [ ] Page transitions (fade/slide on route change)
+- [ ] List animations (staggered fade-in, smooth exit)
+- [ ] Button/interactive feedback (press states, hover lift)
+- [ ] Toast notification system (`sonner`) wired into mutations
+- [ ] Live, animated progress indicator for code submissions
+- [ ] Interview chat interface typing/bubble animations
+- [ ] ATS score reveal animated circular progress ring
+- [ ] Confetti/celebration micro-moments (`canvas-confetti`)
+- [ ] Smooth drag-and-drop reordering for applicant pipeline
+
+## Phase 8: Advanced Interactive Features (Pending)
+- [ ] Recruiter Kanban board (`@dnd-kit/core`)
+- [ ] Command palette (`cmdk`)
+- [ ] Real-time submission updates via WebSocket/SSE
+- [ ] Live notification bell (badge count, dropdown)
+- [ ] Gamified coding streaks
+- [ ] Interactive performance dashboard (`recharts`)
+- [ ] Inline resume preview (`react-pdf`)
+- [ ] Adaptive interview UI difficulty indicator
+
+## Phase 9: UX Polish, Accessibility, Responsiveness & Performance (Pending)
+- [ ] Full responsive pass (mobile, tablet, desktop)
+- [ ] Mobile navigation (bottom nav or drawer)
+- [ ] Onboarding flow (`react-joyride`)
+- [ ] Form UX audit (inline validation, error states)
+- [ ] Accessibility (WCAG AA) pass
+- [ ] Performance pass (`next/image`, code-splitting Monaco, virtualization)
+- [ ] Consistent micro-copy pass
