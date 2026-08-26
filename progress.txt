@@ -40,15 +40,15 @@
 
 ---
 
-## Phase 6: Design System & Visual Identity Overhaul (Pending)
-- [ ] Define a real design system in `apps/web/src/styles/` (colors, typography, spacing)
-- [ ] Document all tokens in `apps/web/src/styles/design-tokens.md`
-- [ ] Proper dark mode implementation (`next-themes`)
-- [ ] Rebuild landing page (`/`) as a marketing page
-- [ ] Custom illustrations or consistent icon set (`lucide-react`)
-- [ ] Empty states for all list views (jobs, submissions, notifications)
-- [ ] Loading states: skeleton screens for all data-fetching views
-- [ ] Shared `<ErrorState />` component for failed fetches
+## Phase 6: Design System & Visual Identity Overhaul (Completed)
+- [x] Define a real design system in `apps/web/src/styles/` (colors, typography, spacing)
+- [x] Document all tokens in `apps/web/src/styles/design-tokens.md`
+- [x] Proper dark mode implementation (`next-themes`)
+- [x] Rebuild landing page (`/`) as a marketing page
+- [x] Custom illustrations or consistent icon set (`lucide-react`)
+- [x] Empty states for all list views (jobs, submissions, notifications)
+- [x] Loading states: skeleton screens for all data-fetching views
+- [x] Shared `<ErrorState />` component for failed fetches
 
 ## Phase 7: Micro-interactions, Animation & Motion Design (Pending)
 - [ ] Install and configure `framer-motion`
