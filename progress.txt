@@ -15,10 +15,10 @@
 - [ ] Setup Judge0 Docker container for code execution
 - [ ] Setup BullMQ + Redis for background workers
 
-## Phase 2: Core Platform Features (Pending)
-- [ ] Resume Parser & ATS Scoring module
-- [ ] AI Mock Interview module using Groq/Gemini API
-- [ ] Job Portal & Application Management for Student and Recruiter roles
+## Phase 2: Core Platform Features (Completed)
+- [x] Resume Parser & ATS Scoring module
+- [x] AI Mock Interview module using Groq/Gemini API
+- [x] Job Portal & Application Management for Student and Recruiter roles
 
 ## Phase 3: Frontend Development (Pending)
 - [ ] Next.js setup with App Router
