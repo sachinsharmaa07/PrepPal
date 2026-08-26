@@ -72,11 +72,34 @@
 - [ ] Inline resume preview (`react-pdf`)
 - [ ] Adaptive interview UI difficulty indicator
 
-## Phase 9: UX Polish, Accessibility, Responsiveness & Performance (Pending)
-- [ ] Full responsive pass (mobile, tablet, desktop)
-- [ ] Mobile navigation (bottom nav or drawer)
-- [ ] Onboarding flow (`react-joyride`)
-- [ ] Form UX audit (inline validation, error states)
-- [ ] Accessibility (WCAG AA) pass
-- [ ] Performance pass (`next/image`, code-splitting Monaco, virtualization)
-- [ ] Consistent micro-copy pass
+## Phase 9: UX Polish & Accessibility (Pending)
+- [ ] Responsive pass (ensure complex interactive views work on mobile)
+- [ ] Keyboard navigation and focus states
+- [ ] Accessibility audit (ARIA labels for dynamic components)
+- [ ] Performance audit (Lighthouse pass, image optimization, dynamic imports)
+
+---
+
+## Phase 10: Testing & Quality Assurance (Pending)
+- [ ] Expand unit test coverage (pure functions, scoring engines, mappers)
+- [ ] Integration tests across auth → apply → submit → interview flows
+- [ ] Load testing the submission queue (k6/Artillery for Judge0/BullMQ)
+- [ ] End-to-end tests (Playwright) for critical user journeys
+
+## Phase 11: Advanced / Stretch Features (Pending)
+- [ ] Coding contests + leaderboard
+- [ ] Embeddings-based fuzzy JD/skill matching
+- [ ] Voice-based interviews (Web Speech API / Whisper)
+- [ ] Multi-round interview support
+
+## Phase 12: Scalability & Observability (Pending)
+- [ ] Read replicas / connection pooling architecture
+- [ ] CloudWatch dashboards/alarms wired up
+- [ ] Error tracking (Sentry) across frontend + backend
+- [ ] Structured logging review
+
+## Phase 13: Documentation, Demo Prep & Launch (Pending)
+- [ ] Polished README (architecture diagram, setup, screenshots)
+- [ ] Recorded demo video
+- [ ] Case-study writeup (Problem → Architecture → Trade-offs)
+- [ ] Final security pass & dependency audit (`npm audit`)
