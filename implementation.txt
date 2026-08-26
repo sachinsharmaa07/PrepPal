@@ -1,0 +1,938 @@
+# PrepPal — Implementation Structure & Reference Guide
+
+**Companion document to `PrepPal-System-Design-Specification.md`.**
+This file is the ground-truth reference for directory layout, backend file structure, database schema (copy-paste-ready Prisma), and the complete API contract — written so that whoever (or whatever AI) implements this stays consistent phase-to-phase instead of re-deriving structure each time.
+
+**Rule for implementation sessions:** before generating any new file, check this document for where it belongs and what it should be named. Don't invent parallel structures (e.g., a second `utils` folder, a different error-response shape) — extend what's here.
+
+---
+
+## Table of Contents
+
+1. Complete Directory Structure (every folder, annotated)
+2. Backend Module Breakdown (file-by-file, per module)
+3. Database Schema (full Prisma schema, ready to use)
+4. Complete API Reference (every endpoint, request/response shapes)
+5. Shared Conventions (naming, response envelope, error format, status codes)
+6. Environment Variables Reference
+7. Frontend Structure (routes ↔ components ↔ API calls mapping)
+8. Implementation Order Cheat-Sheet (ties back to roadmap phases)
+
+---
+
+## 1. Complete Directory Structure
+
+```
+preppal/
+├── apps/
+│   ├── web/                                   # Next.js frontend (App Router)
+│   │   ├── src/
+│   │   │   ├── app/
+│   │   │   │   ├── (auth)/
+│   │   │   │   │   ├── login/page.tsx
+│   │   │   │   │   └── register/page.tsx
+│   │   │   │   ├── (student)/
+│   │   │   │   │   ├── dashboard/page.tsx
+│   │   │   │   │   ├── profile/page.tsx
+│   │   │   │   │   ├── problems/
+│   │   │   │   │   │   ├── page.tsx           # problem list
+│   │   │   │   │   │   └── [id]/page.tsx      # problem detail + editor
+│   │   │   │   │   ├── submissions/
+│   │   │   │   │   │   └── page.tsx           # submission history
+│   │   │   │   │   ├── jobs/
+│   │   │   │   │   │   ├── page.tsx           # job search/list
+│   │   │   │   │   │   └── [id]/page.tsx      # job detail + apply
+│   │   │   │   │   ├── applications/page.tsx  # my applications
+│   │   │   │   │   ├── resume/page.tsx        # upload + ATS results
+│   │   │   │   │   ├── interviews/
+│   │   │   │   │   │   ├── page.tsx           # start/select interview
+│   │   │   │   │   │   └── [id]/page.tsx      # live interview session
+│   │   │   │   │   └── roadmap/page.tsx
+│   │   │   │   ├── (recruiter)/
+│   │   │   │   │   ├── company/page.tsx
+│   │   │   │   │   ├── jobs/
+│   │   │   │   │   │   ├── page.tsx           # recruiter's job list
+│   │   │   │   │   │   ├── new/page.tsx
+│   │   │   │   │   │   └── [id]/
+│   │   │   │   │   │       ├── edit/page.tsx
+│   │   │   │   │   │       └── applicants/page.tsx
+│   │   │   │   │   └── dashboard/page.tsx
+│   │   │   │   ├── (admin)/
+│   │   │   │   │   ├── users/page.tsx
+│   │   │   │   │   ├── jobs/page.tsx          # moderation queue
+│   │   │   │   │   ├── problems/
+│   │   │   │   │   │   ├── page.tsx
+│   │   │   │   │   │   └── new/page.tsx
+│   │   │   │   │   ├── reports/page.tsx
+│   │   │   │   │   └── analytics/page.tsx
+│   │   │   │   ├── layout.tsx
+│   │   │   │   └── page.tsx                   # public landing page
+│   │   │   ├── components/
+│   │   │   │   ├── ui/                        # shadcn/ui primitives (button, dialog, etc.)
+│   │   │   │   ├── layout/
+│   │   │   │   │   ├── Navbar.tsx
+│   │   │   │   │   ├── Sidebar.tsx
+│   │   │   │   │   └── Footer.tsx
+│   │   │   │   ├── coding/
+│   │   │   │   │   ├── CodeEditor.tsx          # Monaco wrapper
+│   │   │   │   │   ├── ProblemCard.tsx
+│   │   │   │   │   ├── VerdictBadge.tsx
+│   │   │   │   │   └── SubmissionResultPanel.tsx
+│   │   │   │   ├── jobs/
+│   │   │   │   │   ├── JobCard.tsx
+│   │   │   │   │   ├── JobFilterBar.tsx
+│   │   │   │   │   └── ApplicantTable.tsx
+│   │   │   │   ├── resume/
+│   │   │   │   │   ├── ResumeUploader.tsx
+│   │   │   │   │   ├── AtsScoreBreakdown.tsx
+│   │   │   │   │   └── SuggestionList.tsx
+│   │   │   │   ├── interview/
+│   │   │   │   │   ├── InterviewChat.tsx
+│   │   │   │   │   ├── QuestionCard.tsx
+│   │   │   │   │   └── FeedbackSummary.tsx
+│   │   │   │   └── dashboard/
+│   │   │   │       ├── PerformanceChart.tsx
+│   │   │   │       └── RoadmapTimeline.tsx
+│   │   │   ├── lib/
+│   │   │   │   ├── api/
+│   │   │   │   │   ├── client.ts               # axios instance + interceptors
+│   │   │   │   │   ├── auth.ts                  # api calls: login/register/refresh
+│   │   │   │   │   ├── jobs.ts
+│   │   │   │   │   ├── applications.ts
+│   │   │   │   │   ├── coding.ts
+│   │   │   │   │   ├── resume.ts
+│   │   │   │   │   ├── interviews.ts
+│   │   │   │   │   └── admin.ts
+│   │   │   │   ├── hooks/
+│   │   │   │   │   ├── useAuth.ts
+│   │   │   │   │   ├── useJobs.ts               # react-query wrappers
+│   │   │   │   │   └── useSubmissionPolling.ts
+│   │   │   │   ├── store/
+│   │   │   │   │   └── authStore.ts             # zustand
+│   │   │   │   └── utils.ts
+│   │   │   ├── middleware.ts                    # route guards (role-based redirects)
+│   │   │   └── styles/globals.css
+│   │   ├── public/
+│   │   ├── next.config.js
+│   │   ├── tailwind.config.ts
+│   │   ├── tsconfig.json
+│   │   └── package.json
+│   │
+│   └── api/                                    # Backend (Express/NestJS modular monolith)
+│       ├── src/
+│       │   ├── modules/
+│       │   │   ├── auth/
+│       │   │   │   ├── auth.controller.ts
+│       │   │   │   ├── auth.service.ts
+│       │   │   │   ├── auth.routes.ts
+│       │   │   │   ├── auth.dto.ts              # Zod schemas
+│       │   │   │   └── jwt.strategy.ts
+│       │   │   ├── users/
+│       │   │   │   ├── users.controller.ts
+│       │   │   │   ├── users.service.ts
+│       │   │   │   ├── users.routes.ts
+│       │   │   │   └── users.dto.ts
+│       │   │   ├── jobs/
+│       │   │   │   ├── jobs.controller.ts
+│       │   │   │   ├── jobs.service.ts
+│       │   │   │   ├── jobs.routes.ts
+│       │   │   │   ├── jobs.dto.ts
+│       │   │   │   └── jobs.repository.ts
+│       │   │   ├── applications/
+│       │   │   │   ├── applications.controller.ts
+│       │   │   │   ├── applications.service.ts
+│       │   │   │   ├── applications.routes.ts
+│       │   │   │   └── applications.dto.ts
+│       │   │   ├── coding/                      # <-- codesach logic ported here
+│       │   │   │   ├── problems/
+│       │   │   │   │   ├── problems.controller.ts
+│       │   │   │   │   ├── problems.service.ts
+│       │   │   │   │   ├── problems.routes.ts
+│       │   │   │   │   └── problems.dto.ts
+│       │   │   │   ├── submissions/
+│       │   │   │   │   ├── submissions.controller.ts
+│       │   │   │   │   ├── submissions.service.ts
+│       │   │   │   │   ├── submissions.routes.ts
+│       │   │   │   │   ├── submissions.dto.ts
+│       │   │   │   │   └── verdict-mapper.ts    # maps Judge0 status → PrepPal verdict enum
+│       │   │   │   └── judge0-client/
+│       │   │   │       ├── judge0.client.ts     # thin HTTP wrapper around Judge0 API
+│       │   │   │       └── judge0.types.ts
+│       │   │   ├── resume/
+│       │   │   │   ├── resume.controller.ts
+│       │   │   │   ├── resume.service.ts
+│       │   │   │   ├── resume.routes.ts
+│       │   │   │   ├── resume.dto.ts
+│       │   │   │   ├── text-extractor.ts        # pdf-parse/mammoth wrapper
+│       │   │   │   └── ats-scoring-engine.ts    # deterministic scoring (§4.3)
+│       │   │   ├── ai/                          # shared AI abstraction (used by resume + interviews)
+│       │   │   │   ├── ai.client.ts             # generateStructured(prompt, schema) interface
+│       │   │   │   ├── providers/
+│       │   │   │   │   ├── gemini.provider.ts
+│       │   │   │   │   └── groq.provider.ts
+│       │   │   │   ├── fallback.ts              # retry/fallback logic across providers
+│       │   │   │   └── prompts/
+│       │   │   │       ├── resume-parse.prompt.ts
+│       │   │   │       ├── resume-suggestions.prompt.ts
+│       │   │   │       ├── interview-question.prompt.ts
+│       │   │   │       └── interview-evaluate.prompt.ts
+│       │   │   ├── interviews/
+│       │   │   │   ├── interviews.controller.ts
+│       │   │   │   ├── interviews.service.ts
+│       │   │   │   ├── interviews.routes.ts
+│       │   │   │   └── interviews.dto.ts
+│       │   │   ├── notifications/
+│       │   │   │   ├── notifications.controller.ts
+│       │   │   │   ├── notifications.service.ts
+│       │   │   │   ├── notifications.routes.ts
+│       │   │   │   └── email.client.ts          # Resend/Brevo wrapper
+│       │   │   └── admin/
+│       │   │       ├── admin.controller.ts
+│       │   │       ├── admin.service.ts
+│       │   │       └── admin.routes.ts
+│       │   ├── common/
+│       │   │   ├── middleware/
+│       │   │   │   ├── authGuard.ts             # verifies JWT, attaches req.user
+│       │   │   │   ├── roleGuard.ts             # RBAC check
+│       │   │   │   ├── rateLimiter.ts           # Redis token-bucket
+│       │   │   │   ├── errorHandler.ts          # global error → response envelope
+│       │   │   │   └── requestLogger.ts
+│       │   │   ├── response/
+│       │   │   │   └── envelope.ts              # success()/error() response helpers
+│       │   │   └── validation/
+│       │   │       └── validateRequest.ts       # Zod middleware wrapper
+│       │   ├── config/
+│       │   │   ├── env.ts                       # typed env var loader
+│       │   │   ├── db.ts                        # Prisma client singleton
+│       │   │   ├── redis.ts                      # Upstash Redis client
+│       │   │   └── queue.ts                      # BullMQ queue definitions
+│       │   ├── routes.ts                         # mounts all module routers
+│       │   └── main.ts                           # app bootstrap
+│       ├── prisma/
+│       │   ├── schema.prisma
+│       │   ├── seed.ts
+│       │   └── migrations/
+│       ├── tests/
+│       │   ├── unit/
+│       │   └── integration/
+│       ├── .env.example
+│       ├── tsconfig.json
+│       └── package.json
+│
+├── workers/                                    # Background job consumers (BullMQ)
+│   ├── src/
+│   │   ├── submission-worker.ts                # consumes submission queue → calls Judge0
+│   │   ├── ai-worker.ts                        # consumes AI-analysis queue (resume/interview)
+│   │   ├── notification-worker.ts              # consumes notification queue → sends email
+│   │   ├── queues.ts                            # shared queue definitions (mirrors api/config/queue.ts)
+│   │   └── index.ts                             # starts all workers
+│   ├── .env.example
+│   └── package.json
+│
+├── infra/
+│   ├── docker/
+│   │   ├── docker-compose.yml                  # local: postgres, redis, judge0, api, web, workers
+│   │   ├── api.Dockerfile
+│   │   ├── web.Dockerfile
+│   │   ├── worker.Dockerfile
+│   │   └── judge0/
+│   │       └── docker-compose.judge0.yml       # official Judge0 compose, referenced/extended
+│   ├── aws/
+│   │   └── terraform/                          # optional infra-as-code
+│   │       ├── vpc.tf
+│   │       ├── ec2-judge0.tf
+│   │       ├── s3.tf
+│   │       ├── iam.tf
+│   │       └── variables.tf
+│   └── github-actions/
+│       ├── ci.yml                              # lint + test + build on PR
+│       └── deploy.yml                          # deploy to Render/Vercel on merge to main
+│
+├── packages/                                   # shared code between web/api/workers
+│   ├── types/
+│   │   └── src/
+│   │       ├── user.types.ts
+│   │       ├── job.types.ts
+│   │       ├── submission.types.ts
+│   │       ├── resume.types.ts
+│   │       ├── interview.types.ts
+│   │       └── api-envelope.types.ts           # {success, data, error} shape shared FE/BE
+│   └── validation/
+│       └── src/
+│           ├── auth.schema.ts
+│           ├── job.schema.ts
+│           ├── submission.schema.ts
+│           ├── resume.schema.ts
+│           └── interview.schema.ts
+│
+├── .env.example                                # root-level (compose-wide vars)
+├── package.json                                # workspace root (pnpm workspaces / turborepo)
+├── pnpm-workspace.yaml
+├── turbo.json
+└── README.md
+```
+
+---
+
+## 2. Backend Module Breakdown (File-by-File Responsibilities)
+
+**Every module follows the same 4-file pattern** (5 for coding/resume which need extra pieces) — this consistency is intentional so an AI assistant (or a new contributor) can predict where logic goes without re-reading the whole codebase each time:
+
+| File | Responsibility | Never Contains |
+|---|---|---|
+| `*.routes.ts` | Maps HTTP method+path → controller function, applies middleware (authGuard, roleGuard, rateLimiter, validateRequest) | Business logic |
+| `*.controller.ts` | Parses `req`, calls the matching service method, wraps result in the response envelope | Direct DB queries, direct Prisma calls |
+| `*.service.ts` | All business logic: validation beyond schema, orchestration across repositories/other services, calls to Prisma/queues/AI | HTTP-specific code (`req`/`res` objects) |
+| `*.dto.ts` | Zod schemas for request bodies/params/query — the single source of truth for what's a valid request | Business logic |
+| `*.repository.ts` (jobs, coding — where queries get complex enough to isolate) | Raw Prisma queries, kept separate from service logic so services stay testable without a real DB | Validation, business rules |
+
+### 2.1 `modules/auth/`
+- `auth.routes.ts`: `POST /register`, `POST /login`, `POST /refresh`, `POST /logout`
+- `auth.service.ts`: hash/verify password (bcrypt), issue JWT pair, rotate refresh tokens (stores/checks blacklist in Redis)
+- `jwt.strategy.ts`: sign/verify helpers used by `authGuard` middleware
+
+### 2.2 `modules/users/`
+- Profile CRUD (bio, education, skills, projects, experience) — one table, `Profiles`, updated via `PATCH /users/me`
+
+### 2.3 `modules/jobs/`
+- `jobs.repository.ts` isolates the search/filter/pagination query (it's the most complex query in the app — full-text search + multiple optional filters + cursor pagination)
+- `jobs.service.ts` also computes `matchScore` per job for the logged-in user (calls the same matching function used in `resume` module's JD-comparison, kept in `packages/validation` or a shared `matching` util to avoid duplicating logic)
+
+### 2.4 `modules/applications/`
+- Enforces the unique `(jobId, userId)` constraint at the service layer with a friendly error before hitting the DB constraint
+- Emits a notification-queue job on every status change
+
+### 2.5 `modules/coding/`
+- `problems/`: CRUD (admin-only for write), public read
+- `submissions/`: `submissions.service.ts` writes the `PENDING` row and enqueues a job — **it never calls Judge0 directly**; only `workers/submission-worker.ts` does, keeping the API responsive under load
+- `judge0-client/judge0.client.ts`: the only file in the entire codebase allowed to make HTTP calls to Judge0 — enforced by convention, not code, so keep this a strict habit
+- `verdict-mapper.ts`: translates Judge0's numeric `status.id` into PrepPal's `Verdict` enum (single source of truth for this mapping — don't inline it elsewhere)
+
+### 2.6 `modules/resume/`
+- `text-extractor.ts`: pdf-parse/mammoth, isolated so it's easy to swap in `tesseract.js` for scanned PDFs later without touching the rest of the module
+- `ats-scoring-engine.ts`: **pure function**, `(parsedResume, jobDescription?) => AtsScoreBreakdown` — deterministic, no AI, no I/O, fully unit-testable in isolation. This is the file most worth writing tests for first.
+- `resume.service.ts` orchestrates: extract → call `ai.client` for parsing → run `ats-scoring-engine` → optionally call `ai.client` again for suggestions
+
+### 2.7 `modules/ai/`
+- `ai.client.ts` exposes one function used by every other module: `generateStructured<T>(prompt: string, schema: ZodSchema<T>, options?): Promise<T>`
+- `fallback.ts` implements: try primary provider → catch 429/5xx → try secondary provider → catch again → throw a typed `AiUnavailableError` that calling services must handle gracefully (e.g., resume analysis shows "try again in a few minutes" rather than a raw 500)
+- **Convention: no module outside `ai/` ever imports the Gemini or Groq SDK directly.** All AI calls go through `ai.client.ts`.
+
+### 2.8 `modules/interviews/`
+- `interviews.service.ts` holds the turn-based loop: create session → generate Q1 → on each answer, evaluate + generate next Q (adaptive difficulty logic lives here, not in the AI module — the AI module only executes prompts, it doesn't decide *what* prompt to send)
+
+### 2.9 `modules/notifications/`
+- Pure consumer-facing CRUD (`GET /notifications`, `PATCH /notifications/:id/read`) — the actual *creation* of notifications happens inside other services (`applications.service.ts`, `interviews.service.ts`) which enqueue a job that `notification-worker.ts` turns into a DB row + optional email
+
+### 2.10 `modules/admin/`
+- Thin — mostly calls into other modules' services with elevated permission checks already passed by `roleGuard`, rather than duplicating logic (e.g., job moderation calls `jobs.service.updateStatus()`, doesn't reimplement it)
+
+---
+
+## 3. Database Schema (Full Prisma Schema)
+
+```prisma
+// apps/api/prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
+
+enum Role {
+  STUDENT
+  RECRUITER
+  ADMIN
+}
+
+enum JobStatus {
+  PENDING_MODERATION
+  PUBLISHED
+  REJECTED
+  CLOSED
+}
+
+enum ApplicationStatus {
+  APPLIED
+  UNDER_REVIEW
+  SHORTLISTED
+  REJECTED
+  HIRED
+}
+
+enum ProblemDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum ProblemStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum Verdict {
+  PENDING
+  ACCEPTED
+  WRONG_ANSWER
+  TIME_LIMIT_EXCEEDED
+  RUNTIME_ERROR
+  COMPILATION_ERROR
+  MEMORY_LIMIT_EXCEEDED
+}
+
+enum Language {
+  CPP
+  JAVA
+  PYTHON
+  JAVASCRIPT
+}
+
+enum InterviewType {
+  TECHNICAL
+  DSA
+  HR
+  BEHAVIORAL
+  ROLE_SPECIFIC
+}
+
+enum InterviewDifficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum InterviewStatus {
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum NotificationType {
+  APPLICATION_STATUS
+  INTERVIEW_RESULT
+  JOB_MODERATION
+  SYSTEM
+}
+
+// ─────────────────────────────────────────────
+// CORE / AUTH
+// ─────────────────────────────────────────────
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  passwordHash  String
+  role          Role
+  name          String
+  avatarUrl     String?
+  isVerified    Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  profile              Profile?
+  company              Company?
+  resumes              Resume[]
+  submissions          Submission[]
+  applications         Application[]
+  interviewSessions    InterviewSession[]
+  notifications        Notification[]
+
+  @@index([email])
+}
+
+model Profile {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio       String?
+  education Json?    // [{ degree, institution, year, cgpa }]
+  projects  Json?    // [{ title, description, techStack, link }]
+  experience Json?   // [{ role, company, duration, description }]
+  links     Json?    // { github, linkedin, portfolio }
+  skillTags Skill[]  @relation("ProfileSkills")
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Skill {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  category String?
+  profiles Profile[] @relation("ProfileSkills")
+}
+
+// ─────────────────────────────────────────────
+// RECRUITER / JOBS
+// ─────────────────────────────────────────────
+
+model Company {
+  id          String   @id @default(uuid())
+  recruiterId String   @unique
+  recruiter   User     @relation(fields: [recruiterId], references: [id], onDelete: Cascade)
+  name        String
+  logoUrl     String?
+  website     String?
+  industry    String?
+  verified    Boolean  @default(false)
+  jobs        Job[]
+
+  @@index([recruiterId])
+}
+
+model Job {
+  id           String        @id @default(uuid())
+  companyId    String
+  company      Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  title        String
+  description  String
+  requirements String[]
+  skills       String[]
+  location     String?
+  salaryMin    Int?
+  salaryMax    Int?
+  status       JobStatus     @default(PENDING_MODERATION)
+  rejectionReason String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  applications Application[]
+
+  @@index([status, createdAt])
+  @@index([skills])
+}
+
+model Application {
+  id          String            @id @default(uuid())
+  jobId       String
+  job         Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resumeId    String
+  resume      Resume            @relation(fields: [resumeId], references: [id])
+  status      ApplicationStatus @default(APPLIED)
+  matchScore  Float?
+  appliedAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@unique([jobId, userId])
+  @@index([userId, appliedAt])
+  @@index([jobId, status])
+}
+
+// ─────────────────────────────────────────────
+// RESUME / ATS
+// ─────────────────────────────────────────────
+
+model Resume {
+  id           String          @id @default(uuid())
+  userId       String
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileUrl      String          // S3 object key
+  version      Int             @default(1)
+  isActive     Boolean         @default(true)
+  uploadedAt   DateTime        @default(now())
+  analyses     ResumeAnalysis[]
+  applications Application[]
+
+  @@index([userId, isActive])
+}
+
+model ResumeAnalysis {
+  id                 String   @id @default(uuid())
+  resumeId           String
+  resume             Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  jobId              String?  // nullable — generic analysis if no JD selected
+  atsScore           Int
+  keywordMatchScore  Int
+  skillMatchScore    Int
+  missingKeywords    String[]
+  suggestions        Json     // [{ type, text }]
+  parsedData         Json     // structured extraction result
+  analyzedAt         DateTime @default(now())
+
+  @@index([resumeId])
+  @@index([resumeId, jobId])
+}
+
+// ─────────────────────────────────────────────
+// CODING PLATFORM (ported from codesach)
+// ─────────────────────────────────────────────
+
+model CodingProblem {
+  id            String            @id @default(uuid())
+  title         String
+  statementMd   String
+  difficulty    ProblemDifficulty
+  topics        String[]
+  timeLimitMs   Int               @default(2000)
+  memoryLimitMb Int               @default(256)
+  status        ProblemStatus     @default(DRAFT)
+  createdBy     String            // admin userId
+  createdAt     DateTime          @default(now())
+  testCases     TestCase[]
+  submissions   Submission[]
+
+  @@index([difficulty])
+  @@index([topics])
+}
+
+model TestCase {
+  id                 String        @id @default(uuid())
+  problemId          String
+  problem            CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  inputRef           String        // inline text or S3 key for large inputs
+  expectedOutputRef  String
+  isSample           Boolean       @default(false)
+
+  @@index([problemId])
+}
+
+model Submission {
+  id         String        @id @default(uuid())
+  userId     String
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problemId  String
+  problem    CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  language   Language
+  code       String
+  verdict    Verdict       @default(PENDING)
+  runtimeMs  Int?
+  memoryKb   Int?
+  createdAt  DateTime      @default(now())
+
+  @@index([userId, problemId, createdAt])
+  @@index([problemId, verdict])
+}
+
+// ─────────────────────────────────────────────
+// AI INTERVIEWS
+// ─────────────────────────────────────────────
+
+model InterviewSession {
+  id           String              @id @default(uuid())
+  userId       String
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type         InterviewType
+  difficulty   InterviewDifficulty
+  role         String?
+  status       InterviewStatus     @default(IN_PROGRESS)
+  overallScore Float?
+  createdAt    DateTime            @default(now())
+  completedAt  DateTime?
+  questions    InterviewQuestion[]
+
+  @@index([userId, createdAt])
+}
+
+model InterviewQuestion {
+  id           String            @id @default(uuid())
+  interviewId  String
+  interview    InterviewSession  @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  questionText String
+  orderIndex   Int
+  difficulty   InterviewDifficulty
+  answer       InterviewAnswer?
+
+  @@index([interviewId])
+}
+
+model InterviewAnswer {
+  id          String            @id @default(uuid())
+  questionId  String            @unique
+  question    InterviewQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answerText  String
+  score       Float?
+  strengths   String[]
+  weaknesses  String[]
+  answeredAt  DateTime          @default(now())
+
+  @@index([questionId])
+}
+
+// ─────────────────────────────────────────────
+// NOTIFICATIONS
+// ─────────────────────────────────────────────
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  message   String
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId, isRead, createdAt])
+}
+```
+
+**Notes on choices:**
+- `education`, `projects`, `experience`, `links` on `Profile` are `Json` fields rather than separate tables — this is a deliberate MVP simplification (fewer joins, faster to build); if you later need to *query* across all users' education entries (e.g., "find everyone from X college"), promote them to real tables then, not before.
+- `Skill` is a many-to-many lookup table so skill names stay canonical for matching (§4.4 of the main spec), while still allowing new skills to be added freely by users (service layer does `findOrCreate` on skill name).
+- All `id` fields use `uuid()` rather than auto-increment ints — avoids leaking sequential IDs (e.g., total user count) via the API, and works cleanly across Neon/Supabase.
+
+---
+
+## 4. Complete API Reference
+
+**Base URL convention:** `https://api.preppal.<domain>/v1/...` — version-prefixed from day one so breaking changes don't require a big-bang migration later.
+
+**Response envelope (all endpoints):**
+```jsonc
+// success
+{ "success": true, "data": { /* ... */ } }
+
+// error
+{ "success": false, "error": { "code": "VALIDATION_ERROR", "message": "email is required" } }
+```
+
+### 4.1 Auth — `/v1/auth`
+
+| Method | Path | Auth | Body | Response |
+|---|---|---|---|---|
+| POST | `/register` | None | `{ email, password, name, role: "STUDENT"\|"RECRUITER" }` | `{ user, accessToken }` (refresh set as httpOnly cookie) |
+| POST | `/login` | None | `{ email, password }` | `{ user, accessToken }` |
+| POST | `/refresh` | Refresh cookie | — | `{ accessToken }` |
+| POST | `/logout` | Access token | — | `{ success: true }` (blacklists refresh token in Redis) |
+
+### 4.2 Users — `/v1/users`
+
+| Method | Path | Auth | Body | Response |
+|---|---|---|---|---|
+| GET | `/me` | Student/Recruiter | — | Full profile object |
+| PATCH | `/me` | Student/Recruiter | `{ bio?, education?, projects?, experience?, links?, skills?[] }` | Updated profile |
+| GET | `/me/dashboard` | Student | — | `{ codingStats, atsScore, interviewStats, roadmap[] }` (aggregated performance profile) |
+
+### 4.3 Jobs — `/v1/jobs`
+
+| Method | Path | Auth | Body/Query | Response |
+|---|---|---|---|---|
+| GET | `/` | Optional | `?query=&location=&skills=&minSalary=&sort=&page=&limit=` | `{ jobs[], total, page, limit }` |
+| GET | `/:id` | Optional | — | Full job detail |
+| POST | `/` | Recruiter | `{ title, description, requirements[], skills[], location?, salaryMin?, salaryMax? }` | Created job (status: PENDING_MODERATION) |
+| PUT | `/:id` | Recruiter (owner) | Same as POST | Updated job |
+| DELETE | `/:id` | Recruiter (owner) | — | `{ success: true }` |
+| GET | `/recommended` | Student | — | Jobs sorted by matchScore for current user |
+| GET | `/:id/applicants` | Recruiter (owner) | `?status=&sort=` | `{ applicants[] }` (joined with matchScore, atsScore) |
+
+### 4.4 Applications — `/v1/applications`
+
+| Method | Path | Auth | Body | Response |
+|---|---|---|---|---|
+| POST | `/jobs/:jobId/apply` | Student | `{ resumeId }` | Created application |
+| GET | `/me` | Student | `?status=&page=&limit=` | `{ applications[] }` |
+| PATCH | `/:id/status` | Recruiter (owns job) | `{ status: "UNDER_REVIEW"\|"SHORTLISTED"\|"REJECTED"\|"HIRED" }` | Updated application (enqueues notification) |
+
+### 4.5 Coding — `/v1/problems`, `/v1/submissions`
+
+| Method | Path | Auth | Body/Query | Response |
+|---|---|---|---|---|
+| GET | `/problems` | Optional | `?difficulty=&topics=&page=&limit=` | `{ problems[] }` (list view, no test cases) |
+| GET | `/problems/:id` | Optional | — | Problem detail + **sample** test cases only |
+| POST | `/problems` | Admin | `{ title, statementMd, difficulty, topics[], timeLimitMs?, memoryLimitMb?, testCases[] }` | Created problem |
+| PUT | `/problems/:id` | Admin | Same shape | Updated problem |
+| POST | `/submissions/run` | Student | `{ problemId, language, code }` | Synchronous result against **sample** tests only (no DB write, direct Judge0 call) |
+| POST | `/submissions` | Student | `{ problemId, language, code }` | `202 Accepted` → `{ submissionId, status: "PENDING" }` |
+| GET | `/submissions/:id` | Student (owner) | — | `{ status, verdict?, runtimeMs?, memoryKb? }` (poll until status=COMPLETED) |
+| GET | `/submissions/me` | Student | `?problemId=&page=&limit=` | `{ submissions[] }` |
+
+### 4.6 Resume — `/v1/resume`
+
+| Method | Path | Auth | Body | Response |
+|---|---|---|---|---|
+| POST | `/upload-url` | Student | `{ fileName, fileType }` | `{ uploadUrl, resumeId }` (pre-signed S3 PUT URL) |
+| POST | `/confirm` | Student | `{ resumeId }` | Confirms upload completed, marks resume active |
+| POST | `/analyze` | Student | `{ resumeId, jobId? }` | `{ analysisId, atsScore, breakdown, missingKeywords[], suggestions[] }` |
+| GET | `/analyses/:id` | Student (owner) | — | Full analysis detail |
+| GET | `/me` | Student | — | `{ resumes[] }` (all versions + active flag) |
+
+### 4.7 Interviews — `/v1/interviews`
+
+| Method | Path | Auth | Body | Response |
+|---|---|---|---|---|
+| POST | `/` | Student | `{ type, difficulty, role? }` | `{ interviewId, firstQuestion }` |
+| POST | `/:id/answer` | Student (owner) | `{ questionId, answerText }` | `{ evaluation: {score, strengths[], weaknesses[]}, nextQuestion? }` (nextQuestion omitted if session complete) |
+| GET | `/:id/result` | Student (owner) | — | `{ overallScore, perQuestion[], weaknessSummary[], recommendations[] }` |
+| GET | `/me` | Student | `?type=&page=&limit=` | `{ sessions[] }` (history list) |
+
+### 4.8 Notifications — `/v1/notifications`
+
+| Method | Path | Auth | Query | Response |
+|---|---|---|---|---|
+| GET | `/` | Any authenticated | `?isRead=&page=&limit=` | `{ notifications[] }` |
+| PATCH | `/:id/read` | Owner | — | `{ success: true }` |
+
+### 4.9 Admin — `/v1/admin`
+
+| Method | Path | Auth | Body/Query | Response |
+|---|---|---|---|---|
+| GET | `/users` | Admin | `?role=&page=&limit=` | `{ users[] }` |
+| PATCH | `/users/:id/suspend` | Admin | `{ reason }` | `{ success: true }` |
+| GET | `/jobs/moderation-queue` | Admin | `?page=&limit=` | `{ jobs[] }` (status=PENDING_MODERATION) |
+| PATCH | `/jobs/:id/moderate` | Admin | `{ approve: boolean, reason? }` | Updated job |
+| GET | `/reports` | Admin | `?status=` | `{ reports[] }` |
+| GET | `/analytics` | Admin | — | `{ dau, mau, submissionsPerDay, applicationsPerDay, topProblems[] }` |
+
+---
+
+## 5. Shared Conventions
+
+### 5.1 Naming
+- **Files**: `kebab-case.type.ts` (e.g., `ats-scoring-engine.ts`, `jobs.service.ts`)
+- **Prisma models**: PascalCase singular (`User`, not `Users`)
+- **DB columns**: camelCase (Prisma default maps cleanly to Postgres)
+- **REST routes**: plural nouns, kebab-case for multi-word (`/interview-questions` if ever needed, though current design avoids this)
+- **Enums**: SCREAMING_SNAKE_CASE values, PascalCase enum name
+
+### 5.2 Error Codes (extend this list as needed, don't invent one-off strings)
+`VALIDATION_ERROR`, `UNAUTHORIZED`, `FORBIDDEN`, `NOT_FOUND`, `CONFLICT` (e.g., duplicate application), `RATE_LIMITED`, `AI_UNAVAILABLE`, `INTERNAL_ERROR`
+
+### 5.3 HTTP Status Mapping
+| Situation | Status |
+|---|---|
+| Success (sync) | 200 |
+| Created | 201 |
+| Accepted (async, e.g., submission queued) | 202 |
+| Validation failure | 400 |
+| Missing/invalid auth | 401 |
+| Authenticated but wrong role/owner | 403 |
+| Resource not found | 404 |
+| Duplicate/conflict (e.g., already applied) | 409 |
+| Rate limit hit | 429 |
+| Unhandled server error | 500 |
+
+### 5.4 Pagination Convention (used identically everywhere)
+Query params: `?page=1&limit=20` (limit capped at 50 server-side regardless of what's requested). Response always includes `{ data: [...], total, page, limit }` inside the envelope's `data`.
+
+### 5.5 Git/Commit Convention
+Conventional commits (`feat:`, `fix:`, `chore:`, `docs:`), one module per PR where possible during Phases 4–8 so review stays scoped to the roadmap phase being built.
+
+---
+
+## 6. Environment Variables Reference
+
+```bash
+# apps/api/.env.example
+
+# --- App ---
+NODE_ENV=development
+PORT=4000
+API_BASE_URL=http://localhost:4000
+
+# --- Database (Neon/Supabase) ---
+DATABASE_URL=postgresql://user:pass@host/dbname?sslmode=require
+
+# --- Redis (Upstash) ---
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
+
+# --- Auth ---
+JWT_ACCESS_SECRET=
+JWT_REFRESH_SECRET=
+JWT_ACCESS_EXPIRY=15m
+JWT_REFRESH_EXPIRY=7d
+
+# --- AI Providers (free tier) ---
+GEMINI_API_KEY=
+GROQ_API_KEY=
+
+# --- AWS (S3 + Judge0) ---
+AWS_REGION=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+S3_BUCKET_NAME=
+
+# --- Judge0 ---
+JUDGE0_BASE_URL=http://<ec2-public-ip>:2358
+JUDGE0_SHARED_SECRET=
+
+# --- Email (Resend/Brevo) ---
+EMAIL_API_KEY=
+EMAIL_FROM_ADDRESS=noreply@preppal.dev
+
+# --- CORS ---
+ALLOWED_ORIGINS=http://localhost:3000,https://preppal.vercel.app
+```
+
+```bash
+# apps/web/.env.example
+NEXT_PUBLIC_API_BASE_URL=http://localhost:4000/v1
+```
+
+```bash
+# workers/.env.example
+DATABASE_URL=
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
+GEMINI_API_KEY=
+GROQ_API_KEY=
+JUDGE0_BASE_URL=
+JUDGE0_SHARED_SECRET=
+EMAIL_API_KEY=
+```
+
+---
+
+## 7. Frontend Structure — Routes ↔ Components ↔ API Calls
+
+| Route | Key Components | API Calls Used |
+|---|---|---|
+| `/login`, `/register` | Auth forms | `lib/api/auth.ts` → `/auth/login`, `/auth/register` |
+| `/dashboard` | `PerformanceChart`, `RoadmapTimeline` | `/users/me/dashboard` |
+| `/problems` | `ProblemCard` (list) | `/problems` |
+| `/problems/[id]` | `CodeEditor`, `SubmissionResultPanel`, `VerdictBadge` | `/problems/:id`, `/submissions/run`, `/submissions`, poll `/submissions/:id` |
+| `/submissions` | Submission history table | `/submissions/me` |
+| `/jobs` | `JobCard`, `JobFilterBar` | `/jobs`, `/jobs/recommended` |
+| `/jobs/[id]` | Job detail + apply button | `/jobs/:id`, `/applications/jobs/:jobId/apply` |
+| `/applications` | Application status timeline | `/applications/me` |
+| `/resume` | `ResumeUploader`, `AtsScoreBreakdown`, `SuggestionList` | `/resume/upload-url`, `/resume/confirm`, `/resume/analyze`, `/resume/me` |
+| `/interviews` | Interview type/difficulty selector | `/interviews` (POST to start) |
+| `/interviews/[id]` | `InterviewChat`, `QuestionCard`, `FeedbackSummary` | `/interviews/:id/answer`, `/interviews/:id/result` |
+| `/roadmap` | `RoadmapTimeline` | part of `/users/me/dashboard` |
+| `/company` (recruiter) | Company profile form | `/companies` (nested under users module or its own — see note below) |
+| `/jobs` (recruiter) | Recruiter's own job list | `/jobs?ownerId=me` (or a dedicated `/jobs/me`) |
+| `/jobs/new`, `/jobs/[id]/edit` | Job form | `POST /jobs`, `PUT /jobs/:id` |
+| `/jobs/[id]/applicants` | `ApplicantTable` | `/jobs/:id/applicants`, `PATCH /applications/:id/status` |
+| `/admin/users` | User table | `/admin/users`, `/admin/users/:id/suspend` |
+| `/admin/jobs` | Moderation queue | `/admin/jobs/moderation-queue`, `PATCH /admin/jobs/:id/moderate` |
+| `/admin/problems` | Problem CRUD | `/problems` (POST/PUT — admin role) |
+| `/admin/reports` | Reports table | `/admin/reports` |
+| `/admin/analytics` | Analytics charts | `/admin/analytics` |
+
+**Note on Company profile endpoint:** not explicitly listed in §4 — add a small `companies` sub-route under `users` (`GET/PATCH /v1/users/me/company`) when you reach Phase 4; it was intentionally kept minimal here since it's a straightforward CRUD extension of the recruiter's own user record.
+
+---
+
+## 8. Implementation Order Cheat-Sheet
+
+Maps directly to the 15-phase roadmap in the main spec — use this table to know exactly which folders/files to touch in each phase:
+
+| Roadmap Phase | Touch These Folders |
+|---|---|
+| 1. Foundation | `apps/web`, `apps/api` skeletons, `infra/docker/docker-compose.yml`, root workspace config |
+| 2. Authentication | `modules/auth/`, `common/middleware/authGuard.ts`, `common/middleware/roleGuard.ts` |
+| 3. Database | `prisma/schema.prisma` (full schema from §3 above), `prisma/seed.ts` |
+| 4. Job Portal | `modules/jobs/`, `modules/applications/`, `apps/web/.../jobs`, `.../applications` |
+| 5. Coding Platform | `modules/coding/problems/`, `modules/coding/submissions/` (DB write only, no Judge0 yet), `apps/web/.../problems` |
+| 6. Judge0 Integration | `modules/coding/judge0-client/`, `workers/submission-worker.ts`, `infra/docker/judge0/` |
+| 7. Resume/ATS | `modules/resume/`, `modules/ai/` (Gemini/Groq clients + fallback), `apps/web/.../resume` |
+| 8. AI Interview | `modules/interviews/`, reuse `modules/ai/`, `apps/web/.../interviews` |
+| 9. Docker (full stack) | `infra/docker/docker-compose.yml` wiring everything together |
+| 10. AWS | `infra/aws/terraform/`, EC2 setup for Judge0, S3 bucket creation |
+| 11. Vercel/Render | Deploy configs, `.env` values set in each platform's dashboard |
+| 12. CI/CD | `infra/github-actions/ci.yml`, `deploy.yml` |
+| 13. Security Hardening | `common/middleware/rateLimiter.ts`, CORS config, dependency audit across all `package.json`s |
+| 14. Testing | `apps/api/tests/unit` (start with `ats-scoring-engine.ts` — pure function, easiest to test thoroughly), `tests/integration` |
+| 15. Production Polish | `README.md`, CloudWatch dashboards, Sentry wiring (optional) |
+
+---
+
+**End of implementation structure. Use alongside `PrepPal-System-Design-Specification.md` — that document has the "why," this one has the "where."**

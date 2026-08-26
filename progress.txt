@@ -1,0 +1,35 @@
+# PrepPal - Project Progress Tracker
+
+## Current Status
+- Project specifications and system design documents (`Desc.txt`, `implementation.txt`) have been created and reviewed.
+- Initial git repository initialized and linked to GitHub (`https://github.com/sachinsharmaa07/PrepPal.git`).
+- Required API keys (GROQ_API_KEY) collected and stored securely.
+- CodeSach repository available for reuse in `CodeSach/`.
+
+## Phase 1: MVP Backend Setup (In Progress)
+- [x] Initial GitHub Repo setup
+- [ ] Initialize modular monolith structure (Express/NestJS)
+- [ ] Setup Prisma & PostgreSQL database schema (neon/supabase)
+- [ ] Implement Auth Module (JWT + Role-Based Access)
+- [ ] Port `CodeSach` coding platform logic into the `coding` module
+- [ ] Setup Judge0 Docker container for code execution
+- [ ] Setup BullMQ + Redis for background workers
+
+## Phase 2: Core Platform Features (Pending)
+- [ ] Resume Parser & ATS Scoring module
+- [ ] AI Mock Interview module using Groq/Gemini API
+- [ ] Job Portal & Application Management for Student and Recruiter roles
+
+## Phase 3: Frontend Development (Pending)
+- [ ] Next.js setup with App Router
+- [ ] shadcn/ui and Tailwind CSS setup
+- [ ] Implement Auth Pages (Login/Register)
+- [ ] Student Dashboard (Performance, Jobs, Coding Practice, Interviews)
+- [ ] Recruiter Dashboard (Jobs, Applicants)
+- [ ] Admin Dashboard (Moderation, Reports, Analytics)
+
+## Phase 4: Cloud Infrastructure & Deployment (Pending)
+- [ ] Vercel deployment for Frontend
+- [ ] Render deployment for Backend API + Workers
+- [ ] AWS EC2 (t2.micro) for Judge0
+- [ ] AWS S3 setup for Resume and Avatar storage
