@@ -8,6 +8,9 @@
     "build": "tsc",
     "start": "node dist/main.js"
   },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "dependencies": {
     "@google/genai": "^2.19.0",
     "@preppal/types": "workspace:*",

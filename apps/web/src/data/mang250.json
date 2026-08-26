@@ -1,0 +1,1002 @@
+[
+  {
+    "title": "Concatenation of Array",
+    "topic": "Arrays & Hashing"
+  },
+  {
+    "title": "Contains Duplicate",
+    "topic": "Arrays & Hashing"
+  },
+  {
+    "title": "Valid Anagram",
+    "topic": "Arrays & Hashing"
+  },
+  {
+    "title": "Two Sum",
+    "topic": "Arrays & Hashing"
+  },
+  {
+    "title": "Longest Common Prefix",
+    "topic": "Arrays & Hashing"
+  },
+  {
+    "title": "Group Anagrams",
+    "topic": "Arrays & Hashing"
+  },
+  {
+    "title": "Remove Element",
+    "topic": "Arrays & Hashing"
+  },
+  {
+    "title": "Majority Element",
+    "topic": "Arrays & Hashing"
+  },
+  {
+    "title": "Design HashSet",
+    "topic": "Arrays & Hashing"
+  },
+  {
+    "title": "Design HashMap",
+    "topic": "Arrays & Hashing"
+  },
+  {
+    "title": "Sort an Array",
+    "topic": "Arrays & Hashing"
+  },
+  {
+    "title": "Sort Colors",
+    "topic": "Arrays & Hashing"
+  },
+  {
+    "title": "Top K Frequent Elements",
+    "topic": "Arrays & Hashing"
+  },
+  {
+    "title": "Encode and Decode Strings",
+    "topic": "Arrays & Hashing"
+  },
+  {
+    "title": "Range Sum Query 2D Immutable",
+    "topic": "Arrays & Hashing"
+  },
+  {
+    "title": "Product of Array Except Self",
+    "topic": "Arrays & Hashing"
+  },
+  {
+    "title": "Valid Sudoku",
+    "topic": "Arrays & Hashing"
+  },
+  {
+    "title": "Longest Consecutive Sequence",
+    "topic": "Arrays & Hashing"
+  },
+  {
+    "title": "Best Time to Buy And Sell Stock II",
+    "topic": "Arrays & Hashing"
+  },
+  {
+    "title": "Majority Element II",
+    "topic": "Arrays & Hashing"
+  },
+  {
+    "title": "Subarray Sum Equals K",
+    "topic": "Arrays & Hashing"
+  },
+  {
+    "title": "First Missing Positive",
+    "topic": "Arrays & Hashing"
+  },
+  {
+    "title": "Reverse String",
+    "topic": "Two Pointers"
+  },
+  {
+    "title": "Valid Palindrome",
+    "topic": "Two Pointers"
+  },
+  {
+    "title": "Valid Palindrome II",
+    "topic": "Two Pointers"
+  },
+  {
+    "title": "Merge Strings Alternately",
+    "topic": "Two Pointers"
+  },
+  {
+    "title": "Merge Sorted Array",
+    "topic": "Two Pointers"
+  },
+  {
+    "title": "Remove Duplicates From Sorted Array",
+    "topic": "Two Pointers"
+  },
+  {
+    "title": "Two Sum II - Input Array Is Sorted",
+    "topic": "Two Pointers"
+  },
+  {
+    "title": "3Sum",
+    "topic": "Two Pointers"
+  },
+  {
+    "title": "4Sum",
+    "topic": "Two Pointers"
+  },
+  {
+    "title": "Rotate Array",
+    "topic": "Two Pointers"
+  },
+  {
+    "title": "Container With Most Water",
+    "topic": "Two Pointers"
+  },
+  {
+    "title": "Boats to Save People",
+    "topic": "Two Pointers"
+  },
+  {
+    "title": "Trapping Rain Water",
+    "topic": "Two Pointers"
+  },
+  {
+    "title": "Contains Duplicate II",
+    "topic": "Sliding Window"
+  },
+  {
+    "title": "Best Time to Buy And Sell Stock",
+    "topic": "Sliding Window"
+  },
+  {
+    "title": "Longest Substring Without Repeating Characters",
+    "topic": "Sliding Window"
+  },
+  {
+    "title": "Longest Repeating Character Replacement",
+    "topic": "Sliding Window"
+  },
+  {
+    "title": "Permutation In String",
+    "topic": "Sliding Window"
+  },
+  {
+    "title": "Minimum Size Subarray Sum",
+    "topic": "Sliding Window"
+  },
+  {
+    "title": "Find K Closest Elements",
+    "topic": "Sliding Window"
+  },
+  {
+    "title": "Minimum Window Substring",
+    "topic": "Sliding Window"
+  },
+  {
+    "title": "Sliding Window Maximum",
+    "topic": "Sliding Window"
+  },
+  {
+    "title": "Baseball Game",
+    "topic": "Stack"
+  },
+  {
+    "title": "Valid Parentheses",
+    "topic": "Stack"
+  },
+  {
+    "title": "Implement Stack Using Queues",
+    "topic": "Stack"
+  },
+  {
+    "title": "Implement Queue Using Stacks",
+    "topic": "Stack"
+  },
+  {
+    "title": "Min Stack",
+    "topic": "Stack"
+  },
+  {
+    "title": "Evaluate Reverse Polish Notation",
+    "topic": "Stack"
+  },
+  {
+    "title": "Asteroid Collision",
+    "topic": "Stack"
+  },
+  {
+    "title": "Daily Temperatures",
+    "topic": "Stack"
+  },
+  {
+    "title": "Online Stock Span",
+    "topic": "Stack"
+  },
+  {
+    "title": "Car Fleet",
+    "topic": "Stack"
+  },
+  {
+    "title": "Simplify Path",
+    "topic": "Stack"
+  },
+  {
+    "title": "Decode String",
+    "topic": "Stack"
+  },
+  {
+    "title": "Maximum Frequency Stack",
+    "topic": "Stack"
+  },
+  {
+    "title": "Largest Rectangle In Histogram",
+    "topic": "Stack"
+  },
+  {
+    "title": "Binary Search",
+    "topic": "Binary Search"
+  },
+  {
+    "title": "Search Insert Position",
+    "topic": "Binary Search"
+  },
+  {
+    "title": "Guess Number Higher Or Lower",
+    "topic": "Binary Search"
+  },
+  {
+    "title": "Sqrt(x)",
+    "topic": "Binary Search"
+  },
+  {
+    "title": "Search a 2D Matrix",
+    "topic": "Binary Search"
+  },
+  {
+    "title": "Koko Eating Bananas",
+    "topic": "Binary Search"
+  },
+  {
+    "title": "Capacity to Ship Packages Within D Days",
+    "topic": "Binary Search"
+  },
+  {
+    "title": "Find Minimum In Rotated Sorted Array",
+    "topic": "Binary Search"
+  },
+  {
+    "title": "Search In Rotated Sorted Array",
+    "topic": "Binary Search"
+  },
+  {
+    "title": "Search In Rotated Sorted Array II",
+    "topic": "Binary Search"
+  },
+  {
+    "title": "Time Based Key Value Store",
+    "topic": "Binary Search"
+  },
+  {
+    "title": "Split Array Largest Sum",
+    "topic": "Binary Search"
+  },
+  {
+    "title": "Median of Two Sorted Arrays",
+    "topic": "Binary Search"
+  },
+  {
+    "title": "Find in Mountain Array",
+    "topic": "Binary Search"
+  },
+  {
+    "title": "Reverse Linked List",
+    "topic": "Linked List"
+  },
+  {
+    "title": "Merge Two Sorted Lists",
+    "topic": "Linked List"
+  },
+  {
+    "title": "Linked List Cycle",
+    "topic": "Linked List"
+  },
+  {
+    "title": "Reorder List",
+    "topic": "Linked List"
+  },
+  {
+    "title": "Remove Nth Node From End of List",
+    "topic": "Linked List"
+  },
+  {
+    "title": "Copy List With Random Pointer",
+    "topic": "Linked List"
+  },
+  {
+    "title": "Add Two Numbers",
+    "topic": "Linked List"
+  },
+  {
+    "title": "Find The Duplicate Number",
+    "topic": "Linked List"
+  },
+  {
+    "title": "Reverse Linked List II",
+    "topic": "Linked List"
+  },
+  {
+    "title": "Design Circular Queue",
+    "topic": "Linked List"
+  },
+  {
+    "title": "LRU Cache",
+    "topic": "Linked List"
+  },
+  {
+    "title": "LFU Cache",
+    "topic": "Linked List"
+  },
+  {
+    "title": "Merge K Sorted Lists",
+    "topic": "Linked List"
+  },
+  {
+    "title": "Reverse Nodes In K Group",
+    "topic": "Linked List"
+  },
+  {
+    "title": "Binary Tree Inorder Traversal",
+    "topic": "Trees"
+  },
+  {
+    "title": "Binary Tree Preorder Traversal",
+    "topic": "Trees"
+  },
+  {
+    "title": "Binary Tree Postorder Traversal",
+    "topic": "Trees"
+  },
+  {
+    "title": "Invert Binary Tree",
+    "topic": "Trees"
+  },
+  {
+    "title": "Maximum Depth of Binary Tree",
+    "topic": "Trees"
+  },
+  {
+    "title": "Diameter of Binary Tree",
+    "topic": "Trees"
+  },
+  {
+    "title": "Balanced Binary Tree",
+    "topic": "Trees"
+  },
+  {
+    "title": "Same Tree",
+    "topic": "Trees"
+  },
+  {
+    "title": "Subtree of Another Tree",
+    "topic": "Trees"
+  },
+  {
+    "title": "Lowest Common Ancestor of a Binary Search Tree",
+    "topic": "Trees"
+  },
+  {
+    "title": "Insert into a Binary Search Tree",
+    "topic": "Trees"
+  },
+  {
+    "title": "Delete Node in a BST",
+    "topic": "Trees"
+  },
+  {
+    "title": "Binary Tree Level Order Traversal",
+    "topic": "Trees"
+  },
+  {
+    "title": "Binary Tree Right Side View",
+    "topic": "Trees"
+  },
+  {
+    "title": "Construct Quad Tree",
+    "topic": "Trees"
+  },
+  {
+    "title": "Count Good Nodes In Binary Tree",
+    "topic": "Trees"
+  },
+  {
+    "title": "Validate Binary Search Tree",
+    "topic": "Trees"
+  },
+  {
+    "title": "Kth Smallest Element In a BST",
+    "topic": "Trees"
+  },
+  {
+    "title": "Construct Binary Tree From Preorder And Inorder Traversal",
+    "topic": "Trees"
+  },
+  {
+    "title": "House Robber III",
+    "topic": "Trees"
+  },
+  {
+    "title": "Delete Leaves With a Given Value",
+    "topic": "Trees"
+  },
+  {
+    "title": "Binary Tree Maximum Path Sum",
+    "topic": "Trees"
+  },
+  {
+    "title": "Serialize And Deserialize Binary Tree",
+    "topic": "Trees"
+  },
+  {
+    "title": "Kth Largest Element In a Stream",
+    "topic": "Heap / Priority Queue"
+  },
+  {
+    "title": "Last Stone Weight",
+    "topic": "Heap / Priority Queue"
+  },
+  {
+    "title": "K Closest Points to Origin",
+    "topic": "Heap / Priority Queue"
+  },
+  {
+    "title": "Kth Largest Element In An Array",
+    "topic": "Heap / Priority Queue"
+  },
+  {
+    "title": "Task Scheduler",
+    "topic": "Heap / Priority Queue"
+  },
+  {
+    "title": "Design Twitter",
+    "topic": "Heap / Priority Queue"
+  },
+  {
+    "title": "Single Threaded CPU",
+    "topic": "Heap / Priority Queue"
+  },
+  {
+    "title": "Reorganize String",
+    "topic": "Heap / Priority Queue"
+  },
+  {
+    "title": "Longest Happy String",
+    "topic": "Heap / Priority Queue"
+  },
+  {
+    "title": "Car Pooling",
+    "topic": "Heap / Priority Queue"
+  },
+  {
+    "title": "Find Median From Data Stream",
+    "topic": "Heap / Priority Queue"
+  },
+  {
+    "title": "IPO",
+    "topic": "Heap / Priority Queue"
+  },
+  {
+    "title": "Sum of All Subsets XOR Total",
+    "topic": "Backtracking"
+  },
+  {
+    "title": "Subsets",
+    "topic": "Backtracking"
+  },
+  {
+    "title": "Combination Sum",
+    "topic": "Backtracking"
+  },
+  {
+    "title": "Combination Sum II",
+    "topic": "Backtracking"
+  },
+  {
+    "title": "Combinations",
+    "topic": "Backtracking"
+  },
+  {
+    "title": "Permutations",
+    "topic": "Backtracking"
+  },
+  {
+    "title": "Subsets II",
+    "topic": "Backtracking"
+  },
+  {
+    "title": "Permutations II",
+    "topic": "Backtracking"
+  },
+  {
+    "title": "Generate Parentheses",
+    "topic": "Backtracking"
+  },
+  {
+    "title": "Word Search",
+    "topic": "Backtracking"
+  },
+  {
+    "title": "Palindrome Partitioning",
+    "topic": "Backtracking"
+  },
+  {
+    "title": "Letter Combinations of a Phone Number",
+    "topic": "Backtracking"
+  },
+  {
+    "title": "Matchsticks to Square",
+    "topic": "Backtracking"
+  },
+  {
+    "title": "Partition to K Equal Sum Subsets",
+    "topic": "Backtracking"
+  },
+  {
+    "title": "N Queens",
+    "topic": "Backtracking"
+  },
+  {
+    "title": "N Queens II",
+    "topic": "Backtracking"
+  },
+  {
+    "title": "Word Break II",
+    "topic": "Backtracking"
+  },
+  {
+    "title": "Implement Trie (Prefix Tree)",
+    "topic": "Tries"
+  },
+  {
+    "title": "Design Add And Search Words Data Structure",
+    "topic": "Tries"
+  },
+  {
+    "title": "Extra Characters in a String",
+    "topic": "Tries"
+  },
+  {
+    "title": "Word Search II",
+    "topic": "Tries"
+  },
+  {
+    "title": "Island Perimeter",
+    "topic": "Graphs"
+  },
+  {
+    "title": "Verifying an Alien Dictionary",
+    "topic": "Graphs"
+  },
+  {
+    "title": "Find the Town Judge",
+    "topic": "Graphs"
+  },
+  {
+    "title": "Number of Islands",
+    "topic": "Graphs"
+  },
+  {
+    "title": "Max Area of Island",
+    "topic": "Graphs"
+  },
+  {
+    "title": "Clone Graph",
+    "topic": "Graphs"
+  },
+  {
+    "title": "Walls And Gates",
+    "topic": "Graphs"
+  },
+  {
+    "title": "Rotting Oranges",
+    "topic": "Graphs"
+  },
+  {
+    "title": "Pacific Atlantic Water Flow",
+    "topic": "Graphs"
+  },
+  {
+    "title": "Surrounded Regions",
+    "topic": "Graphs"
+  },
+  {
+    "title": "Open The Lock",
+    "topic": "Graphs"
+  },
+  {
+    "title": "Course Schedule",
+    "topic": "Graphs"
+  },
+  {
+    "title": "Course Schedule II",
+    "topic": "Graphs"
+  },
+  {
+    "title": "Graph Valid Tree",
+    "topic": "Graphs"
+  },
+  {
+    "title": "Course Schedule IV",
+    "topic": "Graphs"
+  },
+  {
+    "title": "Number of Connected Components In An Undirected Graph",
+    "topic": "Graphs"
+  },
+  {
+    "title": "Redundant Connection",
+    "topic": "Graphs"
+  },
+  {
+    "title": "Accounts Merge",
+    "topic": "Graphs"
+  },
+  {
+    "title": "Evaluate Division",
+    "topic": "Graphs"
+  },
+  {
+    "title": "Minimum Height Trees",
+    "topic": "Graphs"
+  },
+  {
+    "title": "Word Ladder",
+    "topic": "Graphs"
+  },
+  {
+    "title": "Path with Minimum Effort",
+    "topic": "Advanced Graphs"
+  },
+  {
+    "title": "Network Delay Time",
+    "topic": "Advanced Graphs"
+  },
+  {
+    "title": "Reconstruct Itinerary",
+    "topic": "Advanced Graphs"
+  },
+  {
+    "title": "Min Cost to Connect All Points",
+    "topic": "Advanced Graphs"
+  },
+  {
+    "title": "Swim In Rising Water",
+    "topic": "Advanced Graphs"
+  },
+  {
+    "title": "Alien Dictionary",
+    "topic": "Advanced Graphs"
+  },
+  {
+    "title": "Cheapest Flights Within K Stops",
+    "topic": "Advanced Graphs"
+  },
+  {
+    "title": "Find Critical and Pseudo Critical Edges in Minimum Spanning Tree",
+    "topic": "Advanced Graphs"
+  },
+  {
+    "title": "Build a Matrix With Conditions",
+    "topic": "Advanced Graphs"
+  },
+  {
+    "title": "Greatest Common Divisor Traversal",
+    "topic": "Advanced Graphs"
+  },
+  {
+    "title": "Climbing Stairs",
+    "topic": "1-D Dynamic Programming"
+  },
+  {
+    "title": "Min Cost Climbing Stairs",
+    "topic": "1-D Dynamic Programming"
+  },
+  {
+    "title": "N-th Tribonacci Number",
+    "topic": "1-D Dynamic Programming"
+  },
+  {
+    "title": "House Robber",
+    "topic": "1-D Dynamic Programming"
+  },
+  {
+    "title": "House Robber II",
+    "topic": "1-D Dynamic Programming"
+  },
+  {
+    "title": "Longest Palindromic Substring",
+    "topic": "1-D Dynamic Programming"
+  },
+  {
+    "title": "Palindromic Substrings",
+    "topic": "1-D Dynamic Programming"
+  },
+  {
+    "title": "Decode Ways",
+    "topic": "1-D Dynamic Programming"
+  },
+  {
+    "title": "Coin Change",
+    "topic": "1-D Dynamic Programming"
+  },
+  {
+    "title": "Maximum Product Subarray",
+    "topic": "1-D Dynamic Programming"
+  },
+  {
+    "title": "Word Break",
+    "topic": "1-D Dynamic Programming"
+  },
+  {
+    "title": "Longest Increasing Subsequence",
+    "topic": "1-D Dynamic Programming"
+  },
+  {
+    "title": "Partition Equal Subset Sum",
+    "topic": "1-D Dynamic Programming"
+  },
+  {
+    "title": "Combination Sum IV",
+    "topic": "1-D Dynamic Programming"
+  },
+  {
+    "title": "Perfect Squares",
+    "topic": "1-D Dynamic Programming"
+  },
+  {
+    "title": "Integer Break",
+    "topic": "1-D Dynamic Programming"
+  },
+  {
+    "title": "Stone Game III",
+    "topic": "1-D Dynamic Programming"
+  },
+  {
+    "title": "Unique Paths",
+    "topic": "2-D Dynamic Programming"
+  },
+  {
+    "title": "Unique Paths II",
+    "topic": "2-D Dynamic Programming"
+  },
+  {
+    "title": "Minimum Path Sum",
+    "topic": "2-D Dynamic Programming"
+  },
+  {
+    "title": "Longest Common Subsequence",
+    "topic": "2-D Dynamic Programming"
+  },
+  {
+    "title": "Last Stone Weight II",
+    "topic": "2-D Dynamic Programming"
+  },
+  {
+    "title": "Best Time to Buy And Sell Stock With Cooldown",
+    "topic": "2-D Dynamic Programming"
+  },
+  {
+    "title": "Coin Change II",
+    "topic": "2-D Dynamic Programming"
+  },
+  {
+    "title": "Target Sum",
+    "topic": "2-D Dynamic Programming"
+  },
+  {
+    "title": "Interleaving String",
+    "topic": "2-D Dynamic Programming"
+  },
+  {
+    "title": "Stone Game",
+    "topic": "2-D Dynamic Programming"
+  },
+  {
+    "title": "Stone Game II",
+    "topic": "2-D Dynamic Programming"
+  },
+  {
+    "title": "Longest Increasing Path In a Matrix",
+    "topic": "2-D Dynamic Programming"
+  },
+  {
+    "title": "Distinct Subsequences",
+    "topic": "2-D Dynamic Programming"
+  },
+  {
+    "title": "Edit Distance",
+    "topic": "2-D Dynamic Programming"
+  },
+  {
+    "title": "Burst Balloons",
+    "topic": "2-D Dynamic Programming"
+  },
+  {
+    "title": "Regular Expression Matching",
+    "topic": "2-D Dynamic Programming"
+  },
+  {
+    "title": "Lemonade Change",
+    "topic": "Greedy"
+  },
+  {
+    "title": "Maximum Subarray",
+    "topic": "Greedy"
+  },
+  {
+    "title": "Maximum Sum Circular Subarray",
+    "topic": "Greedy"
+  },
+  {
+    "title": "Longest Turbulent Subarray",
+    "topic": "Greedy"
+  },
+  {
+    "title": "Jump Game",
+    "topic": "Greedy"
+  },
+  {
+    "title": "Jump Game II",
+    "topic": "Greedy"
+  },
+  {
+    "title": "Jump Game VII",
+    "topic": "Greedy"
+  },
+  {
+    "title": "Gas Station",
+    "topic": "Greedy"
+  },
+  {
+    "title": "Hand of Straights",
+    "topic": "Greedy"
+  },
+  {
+    "title": "Dota2 Senate",
+    "topic": "Greedy"
+  },
+  {
+    "title": "Merge Triplets to Form Target Triplet",
+    "topic": "Greedy"
+  },
+  {
+    "title": "Partition Labels",
+    "topic": "Greedy"
+  },
+  {
+    "title": "Valid Parenthesis String",
+    "topic": "Greedy"
+  },
+  {
+    "title": "Candy",
+    "topic": "Greedy"
+  },
+  {
+    "title": "Insert Interval",
+    "topic": "Intervals"
+  },
+  {
+    "title": "Merge Intervals",
+    "topic": "Intervals"
+  },
+  {
+    "title": "Non Overlapping Intervals",
+    "topic": "Intervals"
+  },
+  {
+    "title": "Meeting Rooms",
+    "topic": "Intervals"
+  },
+  {
+    "title": "Meeting Rooms II",
+    "topic": "Intervals"
+  },
+  {
+    "title": "Meeting Rooms III",
+    "topic": "Intervals"
+  },
+  {
+    "title": "Minimum Interval to Include Each Query",
+    "topic": "Intervals"
+  },
+  {
+    "title": "Excel Sheet Column Title",
+    "topic": "Math & Geometry"
+  },
+  {
+    "title": "Greatest Common Divisor of Strings",
+    "topic": "Math & Geometry"
+  },
+  {
+    "title": "Insert Greatest Common Divisors in Linked List",
+    "topic": "Math & Geometry"
+  },
+  {
+    "title": "Transpose Matrix",
+    "topic": "Math & Geometry"
+  },
+  {
+    "title": "Rotate Image",
+    "topic": "Math & Geometry"
+  },
+  {
+    "title": "Spiral Matrix",
+    "topic": "Math & Geometry"
+  },
+  {
+    "title": "Set Matrix Zeroes",
+    "topic": "Math & Geometry"
+  },
+  {
+    "title": "Happy Number",
+    "topic": "Math & Geometry"
+  },
+  {
+    "title": "Plus One",
+    "topic": "Math & Geometry"
+  },
+  {
+    "title": "Roman to Integer",
+    "topic": "Math & Geometry"
+  },
+  {
+    "title": "Pow(x, n)",
+    "topic": "Math & Geometry"
+  },
+  {
+    "title": "Multiply Strings",
+    "topic": "Math & Geometry"
+  },
+  {
+    "title": "Detect Squares",
+    "topic": "Math & Geometry"
+  },
+  {
+    "title": "Single Number",
+    "topic": "Bit Manipulation"
+  },
+  {
+    "title": "Number of 1 Bits",
+    "topic": "Bit Manipulation"
+  },
+  {
+    "title": "Counting Bits",
+    "topic": "Bit Manipulation"
+  },
+  {
+    "title": "Add Binary",
+    "topic": "Bit Manipulation"
+  },
+  {
+    "title": "Reverse Bits",
+    "topic": "Bit Manipulation"
+  },
+  {
+    "title": "Missing Number",
+    "topic": "Bit Manipulation"
+  },
+  {
+    "title": "Sum of Two Integers",
+    "topic": "Bit Manipulation"
+  },
+  {
+    "title": "Reverse Integer",
+    "topic": "Bit Manipulation"
+  },
+  {
+    "title": "Bitwise AND of Numbers Range",
+    "topic": "Bit Manipulation"
+  },
+  {
+    "title": "Minimum Array End",
+    "topic": "Bit Manipulation"
+  }
+]
