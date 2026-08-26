@@ -1,0 +1,45 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+node_modules
+.pnpm-store
+
+# testing
+coverage
+
+# next.js
+.next/
+out/
+build
+
+# misc
+.DS_Store
+*.pem
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.log
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# turborepo
+.turbo
+
+# DB / Prisma
+*.db
+*.sqlite
+
+# judge0
+infra/docker/judge0/
+
+# Scratch & IDE
+.idea
+.vscode
+.gemini/
