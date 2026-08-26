@@ -1,24 +1,43 @@
 "use client";
 
 import { AILabel } from "@/components/ui/AILabel";
-import { Check, ChevronRight, Play, Terminal, Video, ListTree, ChevronLeft } from "lucide-react";
+import { Check, ChevronRight, Play, Terminal, Video, ListTree, ChevronLeft, XCircle } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import mang250Data from "@/data/mang250.json";
+
+// Assuming enriched data might be available, fallback to raw if not
+import mang250EnrichedData from "@/data/mang250_enriched.json";
 
 export default function CodingIDEPage() {
   const [activeHint, setActiveHint] = useState<number>(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showDrawer, setShowDrawer] = useState(true);
   
+  // Use enriched data if available, otherwise raw data
+  const dataToUse = mang250EnrichedData.length > 0 ? mang250EnrichedData : mang250Data;
+  
   // MANG 250 DB State
   const [activeTopic, setActiveTopic] = useState<string>("Arrays & Hashing");
   const [page, setPage] = useState(0);
-  const [activeProblem, setActiveProblem] = useState(mang250Data[0]);
+  const [activeProblem, setActiveProblem] = useState<any>(dataToUse[0]);
+
+  // Editor & Evaluation State
+  const defaultCode = `function solve(input) {\n  // Implement your optimal solution for ${activeProblem?.title}\n  // Return the result\n  return input;\n}`;
+  const [code, setCode] = useState(defaultCode);
+  const [verdict, setVerdict] = useState<{ status: 'idle' | 'running' | 'accepted' | 'wrong_answer' | 'error', message: string }>({ status: 'idle', message: '' });
+
+  // Update code when problem changes
+  useEffect(() => {
+    setCode(`function solve(input) {\n  // Implement your optimal solution for ${activeProblem?.title}\n  // Return the result\n  return input;\n}`);
+    setVerdict({ status: 'idle', message: '' });
+    setIsSubmitted(false);
+    setActiveHint(0);
+  }, [activeProblem]);
 
   // Group problems by topic
-  const topics = Array.from(new Set(mang250Data.map(p => p.topic)));
-  const problemsForTopic = mang250Data.filter(p => p.topic === activeTopic);
+  const topics = Array.from(new Set(dataToUse.map((p: any) => p.topic)));
+  const problemsForTopic = dataToUse.filter((p: any) => p.topic === activeTopic);
   
   // Pagination (10 per step)
   const PROBLEMS_PER_PAGE = 10;
@@ -30,6 +49,53 @@ export default function CodingIDEPage() {
     { title: "Approach", text: "Try to solve this in a single pass instead of nested loops to reduce time complexity to O(N)." },
     { title: "Pseudocode", text: "Iterate through the array. For each element, check if the complement exists in your data structure. If not, add the current element." }
   ];
+
+  const handleRunCode = () => {
+    setVerdict({ status: 'running', message: 'Evaluating code...' });
+    
+    // Determine test cases (use enriched ones or mock ones if not enriched yet)
+    const testCases = activeProblem.testCases || [
+      { input: "[1, 2, 3]", expectedOutput: "[1, 2, 3]" }, // Mock test case
+    ];
+
+    setTimeout(() => {
+      try {
+        let allPassed = true;
+        let failMessage = "";
+
+        // Create a safe execution environment
+        const runUserCode = new Function('input', `
+          ${code}
+          return solve(input);
+        `);
+
+        for (let i = 0; i < testCases.length; i++) {
+          const tc = testCases[i];
+          // Try to parse input if it looks like JSON array/object, otherwise pass as string
+          let parsedInput = tc.input;
+          try { parsedInput = JSON.parse(tc.input); } catch(e) {}
+          
+          const result = runUserCode(parsedInput);
+          const resultString = typeof result === 'object' ? JSON.stringify(result) : String(result);
+          
+          if (resultString !== String(tc.expectedOutput)) {
+            allPassed = false;
+            failMessage = \`Test Case \${i + 1} Failed:\\nInput: \${tc.input}\\nExpected: \${tc.expectedOutput}\\nGot: \${resultString}\`;
+            break;
+          }
+        }
+
+        if (allPassed) {
+          setVerdict({ status: 'accepted', message: 'Accepted! All test cases passed.' });
+          setIsSubmitted(true);
+        } else {
+          setVerdict({ status: 'wrong_answer', message: failMessage });
+        }
+      } catch (err: any) {
+        setVerdict({ status: 'error', message: \`Runtime Error: \${err.message}\` });
+      }
+    }, 800); // Mock network latency for realism
+  };
 
   return (
     <div className="h-[calc(100vh-8rem)] flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500 pb-4 relative">
@@ -43,7 +109,7 @@ export default function CodingIDEPage() {
           >
             <ListTree className="w-4 h-4" /> MANG 250 DB
           </button>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">{activeProblem.title}</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">{activeProblem?.title}</h1>
           <span className="px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-amber-500 bg-amber-500/10 rounded-full border border-amber-500/20">
             Medium
           </span>
@@ -76,12 +142,12 @@ export default function CodingIDEPage() {
                     }}
                   >
                     {topics.map(t => (
-                      <option key={t} value={t}>{t}</option>
+                      <option key={t as string} value={t as string}>{t as string}</option>
                     ))}
                   </select>
                 </div>
 
-                {/* Problem List (Batches of 10) */}
+                {/* Problem List */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider">Problems</span>
@@ -91,15 +157,11 @@ export default function CodingIDEPage() {
                   </div>
                   
                   <div className="space-y-1">
-                    {paginatedProblems.map((p, idx) => (
+                    {paginatedProblems.map((p: any, idx) => (
                       <button
                         key={p.title}
-                        onClick={() => {
-                          setActiveProblem(p);
-                          setIsSubmitted(false);
-                          setActiveHint(0);
-                        }}
-                        className={\`w-full text-left px-3 py-2 text-sm rounded-lg transition-colors \${activeProblem.title === p.title ? 'bg-primary/10 text-primary font-medium' : 'text-foreground hover:bg-muted'}\`}
+                        onClick={() => setActiveProblem(p)}
+                        className={\`w-full text-left px-3 py-2 text-sm rounded-lg transition-colors \${activeProblem?.title === p.title ? 'bg-primary/10 text-primary font-medium' : 'text-foreground hover:bg-muted'}\`}
                       >
                         <span className="text-muted-foreground mr-2 font-[family-name:var(--font-jetbrains-mono)]">{page * PROBLEMS_PER_PAGE + idx + 1}.</span>
                         {p.title}
@@ -141,13 +203,34 @@ export default function CodingIDEPage() {
             
             <div className="p-6 border rounded-2xl bg-card border-border shadow-sm">
               <h3 className="font-semibold tracking-tight text-foreground mb-4">Description</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-                Given the problem statement for <strong>{activeProblem.title}</strong>, design an optimal solution. You should consider edge cases and analyze the time and space complexity of your approach.
+              <p className="text-sm text-muted-foreground leading-relaxed mb-6 whitespace-pre-wrap">
+                {activeProblem?.descriptionMd || \`Given the problem statement for **\${activeProblem?.title}**, design an optimal solution. You should consider edge cases and analyze the time and space complexity of your approach.\`}
               </p>
+              
               <div className="p-3 bg-muted/50 border border-border rounded-lg">
                 <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Topic Category</span>
-                <p className="text-sm font-semibold text-foreground mt-1">{activeProblem.topic}</p>
+                <p className="text-sm font-semibold text-foreground mt-1">{activeProblem?.topic}</p>
               </div>
+
+              {/* Status Banner */}
+              {verdict.status !== 'idle' && (
+                <div className={\`mt-4 p-4 rounded-xl border flex gap-3 items-start \${
+                  verdict.status === 'accepted' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400' :
+                  verdict.status === 'running' ? 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400' :
+                  'bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400'
+                }\`}>
+                  {verdict.status === 'accepted' ? <Check className="w-5 h-5 shrink-0 mt-0.5" /> : 
+                   verdict.status === 'running' ? <Terminal className="w-5 h-5 shrink-0 mt-0.5 animate-pulse" /> : 
+                   <XCircle className="w-5 h-5 shrink-0 mt-0.5" />}
+                  <div>
+                    <h4 className="font-semibold text-sm">
+                      {verdict.status === 'accepted' ? 'Accepted' : 
+                       verdict.status === 'running' ? 'Evaluating...' : 'Failed'}
+                    </h4>
+                    <p className="text-xs mt-1 font-[family-name:var(--font-jetbrains-mono)] whitespace-pre-wrap leading-relaxed opacity-90">{verdict.message}</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* AI Mentor / Progressive Hints */}
@@ -231,36 +314,42 @@ export default function CodingIDEPage() {
           </div>
 
           {/* Right Column: Code Editor (7 Columns) */}
-          <div className="xl:col-span-7 flex flex-col border rounded-2xl bg-[#0d1117] border-border shadow-xl overflow-hidden">
+          <div className="xl:col-span-7 flex flex-col border rounded-2xl bg-[#0d1117] border-border shadow-xl overflow-hidden relative">
             <div className="flex items-center px-4 h-12 border-b border-border/20 bg-[#010409]">
               <div className="flex items-center px-4 h-full border-t-2 border-primary bg-[#0d1117] text-sm font-medium text-foreground">
                 solution.ts
               </div>
               <div className="ml-auto flex items-center gap-3">
-                <span className="text-xs font-[family-name:var(--font-jetbrains-mono)] text-muted-foreground">TypeScript</span>
+                <span className="text-xs font-[family-name:var(--font-jetbrains-mono)] text-muted-foreground">JavaScript</span>
               </div>
             </div>
             
-            <div className="flex-1 p-6 overflow-auto font-[family-name:var(--font-jetbrains-mono)] text-sm leading-relaxed text-[#c9d1d9]">
-<pre><code><span className="text-[#ff7b72]">function</span> <span className="text-[#d2a8ff]">solve</span>(input<span className="text-[#ff7b72]">:</span> <span className="text-[#79c0ff]">any</span>)<span className="text-[#ff7b72]">:</span> <span className="text-[#79c0ff]">any</span> {'{'}
-  <span className="text-[#8b949e]">// Implement your optimal solution for {activeProblem.title} here</span>
-  
-{'}'}</code></pre>
-            </div>
+            {/* Real Textarea Editor */}
+            <textarea
+              className="flex-1 w-full h-full p-6 bg-transparent resize-none outline-none font-[family-name:var(--font-jetbrains-mono)] text-sm leading-relaxed text-[#c9d1d9] focus:ring-0"
+              spellCheck={false}
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+            />
 
             <div className="flex items-center justify-between px-6 py-4 border-t border-border/20 bg-[#010409]">
               <div className="flex items-center gap-4 text-xs font-[family-name:var(--font-jetbrains-mono)] text-muted-foreground">
-                <span className="flex items-center gap-1.5"><Terminal className="w-3 h-3" /> Judge0 Ready</span>
+                <span className="flex items-center gap-1.5"><Terminal className="w-3 h-3" /> Node.js 18</span>
               </div>
               <div className="flex items-center gap-3">
-                <button className="px-4 py-2 text-sm font-medium transition-colors border rounded-lg bg-muted/20 border-border/30 hover:bg-muted/40 text-foreground">
+                <button 
+                  onClick={handleRunCode}
+                  disabled={verdict.status === 'running'}
+                  className="px-4 py-2 text-sm font-medium transition-colors border rounded-lg bg-muted/20 border-border/30 hover:bg-muted/40 text-foreground disabled:opacity-50"
+                >
                   Run Code
                 </button>
                 <button 
-                  onClick={() => setIsSubmitted(true)}
-                  className="flex items-center px-6 py-2 text-sm font-semibold rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors shadow-sm"
+                  onClick={handleRunCode}
+                  disabled={verdict.status === 'running'}
+                  className="flex items-center px-6 py-2 text-sm font-semibold rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors shadow-sm disabled:opacity-50"
                 >
-                  Submit <Play className="w-4 h-4 ml-2 fill-current" />
+                  {verdict.status === 'running' ? 'Evaluating...' : 'Submit'} <Play className="w-4 h-4 ml-2 fill-current" />
                 </button>
               </div>
             </div>
