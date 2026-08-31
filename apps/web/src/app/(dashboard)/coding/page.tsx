@@ -5,10 +5,15 @@ import { Check, ChevronRight, Play, Terminal, Video, ListTree, ChevronLeft, XCir
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { io } from "socket.io-client";
-const mang250Data: any[] = [];
+import mang250DataJson from "@/data/mang250.json";
+const mang250Data: any[] = mang250DataJson;
 
 // Assuming enriched data might be available, fallback to raw if not
 const mang250EnrichedData: any[] = [];
+
+import dynamic from "next/dynamic";
+
+const Editor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 
 export default function CodingIDEPage() {
   const [activeHint, setActiveHint] = useState<number>(0);
@@ -24,18 +29,24 @@ export default function CodingIDEPage() {
   const [activeProblem, setActiveProblem] = useState<any>(dataToUse[0]);
 
   // Editor & Evaluation State
-  const defaultCode = `function solve(input) {\n  // Implement your optimal solution for ${activeProblem?.title}\n  // Return the result\n  return input;\n}`;
-  const [code, setCode] = useState(defaultCode);
+  const [code, setCode] = useState("");
   const [language, setLanguage] = useState('javascript');
   const [verdict, setVerdict] = useState<{ status: 'idle' | 'running' | 'accepted' | 'wrong_answer' | 'error', message: string, passedCount?: number, totalCount?: number, results?: any[] }>({ status: 'idle', message: '' });
 
   // Update code when problem changes
   useEffect(() => {
-    setCode(`function solve(input) {\n  // Implement your optimal solution for ${activeProblem?.title}\n  // Return the result\n  return input;\n}`);
+    const boilerplates: Record<string, string> = {
+      javascript: `function solve(input) {\n  // Implement your optimal solution for ${activeProblem?.title}\n  // Return the result\n  return input;\n}`,
+      python: `def solve(input):\n    # Implement your optimal solution for ${activeProblem?.title}\n    # Return the result\n    return input`,
+      cpp: `#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    // Implement your optimal solution for ${activeProblem?.title}\n    return 0;\n}`,
+      java: `class Solution {\n    public void solve() {\n        // Implement your optimal solution for ${activeProblem?.title}\n    }\n}`
+    };
+    
+    setCode(activeProblem?.boilerplates?.[language.toUpperCase()] || boilerplates[language] || boilerplates['javascript']);
     setVerdict({ status: 'idle', message: '' });
     setIsSubmitted(false);
     setActiveHint(0);
-  }, [activeProblem]);
+  }, [activeProblem?.title, language]);
 
   
   useEffect(() => {
@@ -99,7 +110,7 @@ export default function CodingIDEPage() {
           code, 
           language: language.toLowerCase(), 
           mode, 
-          problemId: activeProblem.id,
+          problemId: activeProblem?.id,
           userId: dummyUserId
         })
       });
@@ -341,20 +352,37 @@ export default function CodingIDEPage() {
           <div className="xl:col-span-7 flex flex-col border rounded-2xl bg-[#0d1117] border-border shadow-xl overflow-hidden relative">
             <div className="flex items-center px-4 h-12 border-b border-border/20 bg-[#010409]">
               <div className="flex items-center px-4 h-full border-t-2 border-primary bg-[#0d1117] text-sm font-medium text-foreground">
-                solution.ts
+                solution.{language === 'javascript' ? 'js' : language === 'python' ? 'py' : language === 'cpp' ? 'cpp' : 'java'}
               </div>
               <div className="ml-auto flex items-center gap-3">
-                <span className="text-xs font-[family-name:var(--font-jetbrains-mono)] text-muted-foreground">JavaScript</span>
+                <select
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  className="bg-transparent text-xs font-[family-name:var(--font-jetbrains-mono)] text-muted-foreground outline-none border border-border/20 rounded p-1"
+                >
+                  <option value="javascript">JavaScript</option>
+                  <option value="python">Python</option>
+                  <option value="cpp">C++</option>
+                  <option value="java">Java</option>
+                </select>
               </div>
             </div>
             
-            {/* Real Textarea Editor */}
-            <textarea
-              className="flex-1 w-full h-full p-6 bg-transparent resize-none outline-none font-[family-name:var(--font-jetbrains-mono)] text-sm leading-relaxed text-[#c9d1d9] focus:ring-0"
-              spellCheck={false}
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-            />
+            <div className="flex-1 w-full h-full relative">
+              <Editor
+                height="100%"
+                language={language}
+                theme="vs-dark"
+                value={code}
+                onChange={(val) => setCode(val || "")}
+                options={{
+                  minimap: { enabled: false },
+                  fontSize: 14,
+                  wordWrap: "on",
+                  fontFamily: "var(--font-jetbrains-mono)",
+                }}
+              />
+            </div>
 
             <div className="flex items-center justify-between px-6 py-4 border-t border-border/20 bg-[#010409]">
               <div className="flex items-center gap-4 text-xs font-[family-name:var(--font-jetbrains-mono)] text-muted-foreground">

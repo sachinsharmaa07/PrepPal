@@ -42,7 +42,7 @@ async function handleSubmission(submissionId: string) {
   let failedTestCaseId = null;
 
   for (const tc of testCases) {
-    const result = await JudgeService.submitToJudge0(submission.code, langId, tc.inputRef, timeLimit, memoryLimit);
+    const result: any = await JudgeService.submitToJudge0(submission.code, langId, tc.inputRef, timeLimit, memoryLimit);
     
     // Normalize Judge0 Response
     let actualOutput = (result.stdout || "").trim();

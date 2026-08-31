@@ -9,22 +9,53 @@ import rateLimit from 'express-rate-limit';
 import { setupRoutes } from './routes';
 import { setupSocket } from './socket';
 
+import { correlationIdMiddleware } from './middleware/correlationId';
+import { globalErrorHandler } from './middleware/errorHandler';
+
+import { createAdapter } from '@socket.io/redis-adapter';
+import IORedis from 'ioredis';
+
 const app: Express = express();
 const port = process.env.PORT || 8080;
 
 const httpServer = createServer(app);
+
+// Redis Adapter setup
+const pubClient = new IORedis(process.env.REDIS_URL || 'redis://localhost:6379');
+const subClient = pubClient.duplicate();
+
 const io = new Server(httpServer, {
   cors: {
-    origin: '*',
+    origin: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
     methods: ['GET', 'POST']
-  }
+  },
+  pingTimeout: 60000,
+  adapter: createAdapter(pubClient, subClient)
 });
 
 setupSocket(io);
 
 // Middleware
-app.use(helmet());
-app.use(cors());
+app.use(correlationIdMiddleware);
+
+app.use(
+  helmet({
+    hidePoweredBy: true,
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+      },
+    },
+  })
+);
+
+app.use(
+  cors({
+    origin: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+    credentials: true,
+  })
+);
 app.use(compression());
 
 // Basic Rate Limiting: 100 requests per 15 minutes per IP
@@ -44,16 +75,7 @@ app.use(express.urlencoded({ extended: true }));
 setupRoutes(app);
 
 // Global Error Handler
-app.use((err: any, req: Request, res: Response, next: express.NextFunction) => {
-  console.error(err.stack);
-  res.status(500).json({
-    success: false,
-    error: {
-      code: 'INTERNAL_ERROR',
-      message: 'An internal server error occurred',
-    },
-  });
-});
+app.use(globalErrorHandler);
 
 httpServer.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);

@@ -46,7 +46,7 @@ export function GlobalAIChat() {
             </div>
             <div>
               <h2 className="text-sm font-semibold text-foreground">AI Career Copilot</h2>
-              <p className="text-xs text-muted-foreground">Powered by Llama 3</p>
+              <p className="text-xs text-muted-foreground">Powered by Gemini 1.5</p>
             </div>
           </div>
           <button 

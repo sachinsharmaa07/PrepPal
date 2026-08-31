@@ -1,6 +1,10 @@
 import { streamText } from 'ai';
-import { groq } from '@ai-sdk/groq';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { NextRequest } from 'next/server';
+
+const google = createGoogleGenerativeAI({
+  apiKey: process.env.GEMINI_API_KEY || '',
+});
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
@@ -27,9 +31,8 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     // AI SDK v4: messages have content in parts[] array
-    // Extract text from parts for the Groq API
+    // Extract text from parts
     const coreMessages = (body.messages ?? []).map((m: any) => {
-      // Handle both old format ({ role, content }) and new AI SDK v4 format ({ role, parts })
       let content = '';
       if (typeof m.content === 'string') {
         content = m.content;
@@ -48,7 +51,7 @@ export async function POST(req: NextRequest) {
     });
 
     const result = streamText({
-      model: groq('llama-3.3-70b-versatile'),
+      model: google('gemini-1.5-flash'),
       system: systemPrompt,
       messages: coreMessages,
       temperature: 0.7,

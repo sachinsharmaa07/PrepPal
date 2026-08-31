@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { truncateForTokenBudget } from '../../../lib/tokenGuard';
 
 export const ResumeParsedSchema = z.object({
   name: z.string().nullable(),
@@ -30,13 +31,16 @@ export const ResumeParsedSchema = z.object({
   certifications: z.array(z.string()),
 });
 
-export const getResumeParsePrompt = (rawText: string) => `
+export const getResumeParsePrompt = (rawText: string) => {
+  const truncatedText = truncateForTokenBudget(rawText, 6000);
+  return `
 Please extract structured data from the following raw resume text. 
 Identify contact information, education, work experience, technical skills, and projects. 
 If a field is not found, return null or an empty array as appropriate.
 
 Raw Resume Text:
 """
-${rawText}
+${truncatedText}
 """
 `;
+};

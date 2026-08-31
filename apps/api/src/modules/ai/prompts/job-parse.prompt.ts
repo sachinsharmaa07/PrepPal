@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { truncateForTokenBudget } from '../../../lib/tokenGuard';
 
 export const JobParsedSchema = z.object({
   role: z.string(),
@@ -7,13 +8,16 @@ export const JobParsedSchema = z.object({
   concepts: z.array(z.string()),
 });
 
-export const getJobParsePrompt = (jobDescription: string) => `
+export const getJobParsePrompt = (jobDescription: string) => {
+  const truncatedJobDesc = truncateForTokenBudget(jobDescription, 6000);
+  return `
 You are an expert ATS and HR system. Extract structured information from the following Job Description.
 Identify the primary role title, the explicitly required technical skills, any preferred (nice-to-have) skills, and key technical concepts (like "REST APIs", "System Design", "Microservices", etc.).
 Return ONLY valid JSON matching the schema.
 
 Job Description:
 """
-${jobDescription}
+${truncatedJobDesc}
 """
 `;
+};

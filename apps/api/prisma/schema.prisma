@@ -100,7 +100,7 @@ enum NotificationType {
 // ─────────────────────────────────────────────
 
 model User {
-  id            String   @id @default(uuid())
+  id            String   @id @default(cuid())
   email         String   @unique
   passwordHash  String
   role          Role
@@ -123,25 +123,25 @@ model User {
 }
 
 model Profile {
-  id        String   @id @default(uuid())
+  id        String   @id @default(cuid())
   userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   bio       String?
   education Json?    // [{ degree, institution, year, cgpa }]
   projects  Json?    // [{ title, description, techStack, link }]
   experience Json?   // [{ role, company, duration, description }]
   links     Json?    // { github, linkedin, portfolio }
-  skillTags Skill[]  @relation("ProfileSkills")
+  skillTags Skill[]  @relation("ProfileSkills", onDelete: Cascade, onUpdate: Cascade)
   updatedAt DateTime @updatedAt
 
   @@index([userId])
 }
 
 model Skill {
-  id       String    @id @default(uuid())
+  id       String    @id @default(cuid())
   name     String    @unique
   category String?
-  profiles Profile[] @relation("ProfileSkills")
+  profiles Profile[] @relation("ProfileSkills", onDelete: Cascade, onUpdate: Cascade)
 }
 
 // ─────────────────────────────────────────────
@@ -149,9 +149,9 @@ model Skill {
 // ─────────────────────────────────────────────
 
 model Company {
-  id          String   @id @default(uuid())
+  id          String   @id @default(cuid())
   recruiterId String   @unique
-  recruiter   User     @relation(fields: [recruiterId], references: [id], onDelete: Cascade)
+  recruiter   User     @relation(fields: [recruiterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   name        String
   logoUrl     String?
   website     String?
@@ -163,9 +163,9 @@ model Company {
 }
 
 model Job {
-  id              String        @id @default(uuid())
+  id              String        @id @default(cuid())
   companyId       String
-  company         Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  company         Company       @relation(fields: [companyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   title           String
   description     String
   requirements    String[]
@@ -188,13 +188,13 @@ model Job {
 }
 
 model Application {
-  id          String            @id @default(uuid())
+  id          String            @id @default(cuid())
   jobId       String
-  job         Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  job         Job               @relation(fields: [jobId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId      String
-  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   resumeId    String?           // optional — student may not have uploaded a resume yet
-  resume      Resume?           @relation(fields: [resumeId], references: [id])
+  resume      Resume?           @relation(fields: [resumeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   status      ApplicationStatus @default(APPLIED)
   matchScore  Float?
   appliedAt   DateTime          @default(now())
@@ -210,9 +210,9 @@ model Application {
 // ─────────────────────────────────────────────
 
 model Resume {
-  id           String          @id @default(uuid())
+  id           String          @id @default(cuid())
   userId       String
-  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   fileUrl      String          // S3 object key
   version      Int             @default(1)
   isActive     Boolean         @default(true)
@@ -224,9 +224,9 @@ model Resume {
 }
 
 model ResumeAnalysis {
-  id                 String   @id @default(uuid())
+  id                 String   @id @default(cuid())
   resumeId           String
-  resume             Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  resume             Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   jobId              String?  // nullable — generic analysis if no JD selected
   atsScore           Int
   keywordMatchScore  Int
@@ -245,7 +245,7 @@ model ResumeAnalysis {
 // ─────────────────────────────────────────────
 
 model CodingProblem {
-  id            String            @id @default(uuid())
+  id            String            @id @default(cuid())
   title         String
   statementMd   String
   difficulty    ProblemDifficulty
@@ -268,9 +268,9 @@ model CodingProblem {
 }
 
 model TestCase {
-  id                 String        @id @default(uuid())
+  id                 String        @id @default(cuid())
   problemId          String
-  problem            CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problem            CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   inputRef           String        // inline text or S3 key for large inputs
   expectedOutputRef  String
   isSample           Boolean       @default(false)
@@ -282,11 +282,11 @@ model TestCase {
 }
 
 model UserProblemCode {
-  id         String        @id @default(uuid())
+  id         String        @id @default(cuid())
   userId     String
-  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   problemId  String
-  problem    CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problem    CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   language   Language
   code       String
   updatedAt  DateTime      @updatedAt
@@ -296,11 +296,11 @@ model UserProblemCode {
 }
 
 model Submission {
-  id              String        @id @default(uuid())
+  id              String        @id @default(cuid())
   userId          String
-  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   problemId       String
-  problem         CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problem         CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   language        Language
   code            String
   verdict         Verdict       @default(PENDING)
@@ -326,11 +326,11 @@ model Submission {
 }
 
 model SubmissionTestResult {
-  id              String        @id @default(uuid())
+  id              String        @id @default(cuid())
   submissionId    String
-  submission      Submission    @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  submission      Submission    @relation(fields: [submissionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   testCaseId      String
-  testCase        TestCase      @relation(fields: [testCaseId], references: [id], onDelete: Cascade)
+  testCase        TestCase      @relation(fields: [testCaseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   
   verdict         Verdict
   executionTimeMs Int?
@@ -350,9 +350,9 @@ model SubmissionTestResult {
 // ─────────────────────────────────────────────
 
 model InterviewSession {
-  id           String              @id @default(uuid())
+  id           String              @id @default(cuid())
   userId       String
-  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   type         InterviewType
   difficulty   InterviewDifficulty
   role         String?
@@ -366,9 +366,9 @@ model InterviewSession {
 }
 
 model InterviewQuestion {
-  id           String            @id @default(uuid())
+  id           String            @id @default(cuid())
   interviewId  String
-  interview    InterviewSession  @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  interview    InterviewSession  @relation(fields: [interviewId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   questionText String
   orderIndex   Int
   difficulty   InterviewDifficulty
@@ -378,9 +378,9 @@ model InterviewQuestion {
 }
 
 model InterviewAnswer {
-  id          String            @id @default(uuid())
+  id          String            @id @default(cuid())
   questionId  String            @unique
-  question    InterviewQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  question    InterviewQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   answerText  String
   score       Float?
   strengths   String[]
@@ -395,9 +395,9 @@ model InterviewAnswer {
 // ─────────────────────────────────────────────
 
 model Notification {
-  id        String           @id @default(uuid())
+  id        String           @id @default(cuid())
   userId    String
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   type      NotificationType
   message   String
   isRead    Boolean          @default(false)
