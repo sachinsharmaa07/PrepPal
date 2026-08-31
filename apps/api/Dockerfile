@@ -35,7 +35,7 @@ RUN pnpm install --prod --frozen-lockfile
 
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
-COPY --from=builder /app/packages/types/dist ./packages/types/dist
+
 
 WORKDIR /app/apps/api
 EXPOSE 8000
