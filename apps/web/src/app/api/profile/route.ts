@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
     });
 
     // Deduplicate solved problems
-    const solvedProblemTitles = Array.from(new Set(submissions.map(s => s.problem.title)));
+    const solvedProblemTitles = Array.from(new Set(submissions.map((s: any) => s.problem.title)));
 
     return NextResponse.json({
       profile: profile || null,
