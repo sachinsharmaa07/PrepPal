@@ -43,3 +43,5 @@ infra/docker/judge0/
 .idea
 .vscode
 .gemini/
+
+scratch*

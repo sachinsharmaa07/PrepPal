@@ -73,7 +73,7 @@ export class InterviewService {
 
     let nextQuestion = null;
     if (questionsCount < 3) {
-      const nextPrompt = getNextQuestionPrompt(question.interview.type, question.interview.difficulty, \`Score: \${evaluation.score}/10\`);
+      const nextPrompt = getNextQuestionPrompt(question.interview.type, question.interview.difficulty, `Score: ${evaluation.score}/10`);
       const nextQText = await aiClient.generateText(nextPrompt, 'You are a technical interviewer.');
       
       nextQuestion = await prisma.interviewQuestion.create({

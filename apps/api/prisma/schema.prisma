@@ -26,6 +26,13 @@ enum JobStatus {
   CLOSED
 }
 
+enum Tenure {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+}
+
 enum ApplicationStatus {
   APPLIED
   UNDER_REVIEW
@@ -107,6 +114,7 @@ model User {
   company              Company?
   resumes              Resume[]
   submissions          Submission[]
+  userProblemCodes     UserProblemCode[]
   applications         Application[]
   interviewSessions    InterviewSession[]
   notifications        Notification[]
@@ -155,24 +163,28 @@ model Company {
 }
 
 model Job {
-  id           String        @id @default(uuid())
-  companyId    String
-  company      Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  title        String
-  description  String
-  requirements String[]
-  skills       String[]
-  location     String?
-  salaryMin    Int?
-  salaryMax    Int?
-  status       JobStatus     @default(PENDING_MODERATION)
+  id              String        @id @default(uuid())
+  companyId       String
+  company         Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  title           String
+  description     String
+  requirements    String[]
+  skills          String[]
+  location        String?
+  isRemote        Boolean       @default(false)
+  tenure          Tenure        @default(FULL_TIME)
+  salaryMin       Int?
+  salaryMax       Int?
+  deadline        DateTime?
+  status          JobStatus     @default(PUBLISHED)
   rejectionReason String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  applications Application[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  applications    Application[]
 
   @@index([status, createdAt])
   @@index([skills])
+  @@index([tenure])
 }
 
 model Application {
@@ -181,8 +193,8 @@ model Application {
   job         Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
   userId      String
   user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  resumeId    String
-  resume      Resume            @relation(fields: [resumeId], references: [id])
+  resumeId    String?           // optional — student may not have uploaded a resume yet
+  resume      Resume?           @relation(fields: [resumeId], references: [id])
   status      ApplicationStatus @default(APPLIED)
   matchScore  Float?
   appliedAt   DateTime          @default(now())
@@ -241,10 +253,15 @@ model CodingProblem {
   timeLimitMs   Int               @default(2000)
   memoryLimitMb Int               @default(256)
   status        ProblemStatus     @default(DRAFT)
+  boilerplates  Json?             // { CPP: string, JAVA: string, PYTHON: string, JAVASCRIPT: string }
+  metaData      Json?             // { name: string, params: [{name, type}], return: {type} }
+  judgeConfig   Json?             // { timeLimitMs, memoryLimitMb, checkerType }
   createdBy     String            // admin userId
   createdAt     DateTime          @default(now())
-  testCases     TestCase[]
-  submissions   Submission[]
+  
+  testCases         TestCase[]
+  submissions       Submission[]
+  userProblemCodes  UserProblemCode[]
 
   @@index([difficulty])
   @@index([topics])
@@ -257,11 +274,14 @@ model TestCase {
   inputRef           String        // inline text or S3 key for large inputs
   expectedOutputRef  String
   isSample           Boolean       @default(false)
+  order              Int           @default(0)
+  
+  results            SubmissionTestResult[]
 
   @@index([problemId])
 }
 
-model Submission {
+model UserProblemCode {
   id         String        @id @default(uuid())
   userId     String
   user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -269,13 +289,60 @@ model Submission {
   problem    CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
   language   Language
   code       String
-  verdict    Verdict       @default(PENDING)
-  runtimeMs  Int?
-  memoryKb   Int?
-  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@unique([userId, problemId, language])
+  @@index([userId, problemId])
+}
+
+model Submission {
+  id              String        @id @default(uuid())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problemId       String
+  problem         CodingProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  language        Language
+  code            String
+  verdict         Verdict       @default(PENDING)
+  
+  totalTests      Int           @default(0)
+  passedTests     Int           @default(0)
+  failedTestCaseId String?
+  
+  runtimeMs       Int?
+  memoryKb        Int?
+  
+  compileOutput   String?
+  runtimeOutput   String?
+  
+  startedAt       DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime      @default(now())
+
+  testResults     SubmissionTestResult[]
 
   @@index([userId, problemId, createdAt])
   @@index([problemId, verdict])
+}
+
+model SubmissionTestResult {
+  id              String        @id @default(uuid())
+  submissionId    String
+  submission      Submission    @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  testCaseId      String
+  testCase        TestCase      @relation(fields: [testCaseId], references: [id], onDelete: Cascade)
+  
+  verdict         Verdict
+  executionTimeMs Int?
+  memoryUsedKb    Int?
+  
+  actualOutput    String?
+  errorOutput     String?
+  
+  createdAt       DateTime      @default(now())
+
+  @@index([submissionId])
+  @@index([submissionId, testCaseId])
 }
 
 // ─────────────────────────────────────────────

@@ -4,10 +4,11 @@ import { AILabel } from "@/components/ui/AILabel";
 import { Check, ChevronRight, Play, Terminal, Video, ListTree, ChevronLeft, XCircle } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import mang250Data from "@/data/mang250.json";
+import { io } from "socket.io-client";
+const mang250Data: any[] = [];
 
 // Assuming enriched data might be available, fallback to raw if not
-import mang250EnrichedData from "@/data/mang250_enriched.json";
+const mang250EnrichedData: any[] = [];
 
 export default function CodingIDEPage() {
   const [activeHint, setActiveHint] = useState<number>(0);
@@ -25,7 +26,8 @@ export default function CodingIDEPage() {
   // Editor & Evaluation State
   const defaultCode = `function solve(input) {\n  // Implement your optimal solution for ${activeProblem?.title}\n  // Return the result\n  return input;\n}`;
   const [code, setCode] = useState(defaultCode);
-  const [verdict, setVerdict] = useState<{ status: 'idle' | 'running' | 'accepted' | 'wrong_answer' | 'error', message: string }>({ status: 'idle', message: '' });
+  const [language, setLanguage] = useState('javascript');
+  const [verdict, setVerdict] = useState<{ status: 'idle' | 'running' | 'accepted' | 'wrong_answer' | 'error', message: string, passedCount?: number, totalCount?: number, results?: any[] }>({ status: 'idle', message: '' });
 
   // Update code when problem changes
   useEffect(() => {
@@ -34,6 +36,38 @@ export default function CodingIDEPage() {
     setIsSubmitted(false);
     setActiveHint(0);
   }, [activeProblem]);
+
+  
+  useEffect(() => {
+    const socket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080');
+    
+    socket.on('submission:progress', (data) => {
+      setVerdict(prev => ({
+        ...prev,
+        status: 'running',
+        message: `Evaluating tests... ${data.passedTests}/${data.totalTests} passed`,
+        results: [...(prev.results || []), data.testResult]
+      }));
+    });
+
+    socket.on('submission:completed', (data) => {
+      setVerdict(prev => ({
+        ...prev,
+        status: data.verdict === 'ACCEPTED' ? 'accepted' : 'wrong_answer',
+        message: data.verdict === 'ACCEPTED' ? 'Accepted! All test cases passed.' : 'Submission Failed.',
+        passedCount: data.passedTests,
+        totalCount: data.totalTests
+      }));
+      if (data.verdict === 'ACCEPTED') setIsSubmitted(true);
+    });
+
+    // Save socket to global/ref if needed to join rooms, but for simplicity, we'll just join on trigger
+    (window as any)._socket = socket;
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   // Group problems by topic
   const topics = Array.from(new Set(dataToUse.map((p: any) => p.topic)));
@@ -50,51 +84,41 @@ export default function CodingIDEPage() {
     { title: "Pseudocode", text: "Iterate through the array. For each element, check if the complement exists in your data structure. If not, add the current element." }
   ];
 
-  const handleRunCode = () => {
-    setVerdict({ status: 'running', message: 'Evaluating code...' });
+      const handleRunCode = async (mode = 'run') => {
+    setIsSubmitted(false);
+    setVerdict({ status: 'running', message: mode === 'run' ? 'Running sample tests...' : 'Evaluating all tests...', passedCount: 0, totalCount: 0, results: [] });
     
-    // Determine test cases (use enriched ones or mock ones if not enriched yet)
-    const testCases = activeProblem.testCases || [
-      { input: "[1, 2, 3]", expectedOutput: "[1, 2, 3]" }, // Mock test case
-    ];
+    const dummyUserId = 'dummy-user-id';
 
-    setTimeout(() => {
-      try {
-        let allPassed = true;
-        let failMessage = "";
-
-        // Create a safe execution environment
-        const runUserCode = new Function('input', `
-          ${code}
-          return solve(input);
-        `);
-
-        for (let i = 0; i < testCases.length; i++) {
-          const tc = testCases[i];
-          // Try to parse input if it looks like JSON array/object, otherwise pass as string
-          let parsedInput = tc.input;
-          try { parsedInput = JSON.parse(tc.input); } catch(e) {}
-          
-          const result = runUserCode(parsedInput);
-          const resultString = typeof result === 'object' ? JSON.stringify(result) : String(result);
-          
-          if (resultString !== String(tc.expectedOutput)) {
-            allPassed = false;
-            failMessage = \`Test Case \${i + 1} Failed:\\nInput: \${tc.input}\\nExpected: \${tc.expectedOutput}\\nGot: \${resultString}\`;
-            break;
-          }
-        }
-
-        if (allPassed) {
-          setVerdict({ status: 'accepted', message: 'Accepted! All test cases passed.' });
-          setIsSubmitted(true);
-        } else {
-          setVerdict({ status: 'wrong_answer', message: failMessage });
-        }
-      } catch (err: any) {
-        setVerdict({ status: 'error', message: \`Runtime Error: \${err.message}\` });
+    try {
+      const endpoint = mode === 'run' ? '/api/executions' : '/api/submissions';
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          code, 
+          language: language.toLowerCase(), 
+          mode, 
+          problemId: activeProblem.id,
+          userId: dummyUserId
+        })
+      });
+      const data = await res.json();
+      
+      if (data.error) {
+        setVerdict({ status: 'error', message: data.error, passedCount: 0, totalCount: 0, results: [] });
+        return;
       }
-    }, 800); // Mock network latency for realism
+
+      // Join socket room
+      const id = mode === 'run' ? data.executionId : data.submissionId;
+      if ((window as any)._socket) {
+        (window as any)._socket.emit('join_submission', id);
+      }
+      
+    } catch (err: any) {
+      setVerdict({ status: 'error', message: `Runtime Error: ${err.message}`, passedCount: 0, totalCount: 0, results: [] });
+    }
   };
 
   return (
@@ -157,11 +181,11 @@ export default function CodingIDEPage() {
                   </div>
                   
                   <div className="space-y-1">
-                    {paginatedProblems.map((p: any, idx) => (
+                    {paginatedProblems.map((p: any, idx: number) => (
                       <button
                         key={p.title}
                         onClick={() => setActiveProblem(p)}
-                        className={\`w-full text-left px-3 py-2 text-sm rounded-lg transition-colors \${activeProblem?.title === p.title ? 'bg-primary/10 text-primary font-medium' : 'text-foreground hover:bg-muted'}\`}
+                        className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-colors ${activeProblem?.title === p.title ? 'bg-primary/10 text-primary font-medium' : 'text-foreground hover:bg-muted'}`}
                       >
                         <span className="text-muted-foreground mr-2 font-[family-name:var(--font-jetbrains-mono)]">{page * PROBLEMS_PER_PAGE + idx + 1}.</span>
                         {p.title}
@@ -204,7 +228,7 @@ export default function CodingIDEPage() {
             <div className="p-6 border rounded-2xl bg-card border-border shadow-sm">
               <h3 className="font-semibold tracking-tight text-foreground mb-4">Description</h3>
               <p className="text-sm text-muted-foreground leading-relaxed mb-6 whitespace-pre-wrap">
-                {activeProblem?.descriptionMd || \`Given the problem statement for **\${activeProblem?.title}**, design an optimal solution. You should consider edge cases and analyze the time and space complexity of your approach.\`}
+                {activeProblem?.descriptionMd || `Given the problem statement for **${activeProblem?.title}**, design an optimal solution. You should consider edge cases and analyze the time and space complexity of your approach.`}
               </p>
               
               <div className="p-3 bg-muted/50 border border-border rounded-lg">
@@ -214,11 +238,11 @@ export default function CodingIDEPage() {
 
               {/* Status Banner */}
               {verdict.status !== 'idle' && (
-                <div className={\`mt-4 p-4 rounded-xl border flex gap-3 items-start \${
+                <div className={`mt-4 p-4 rounded-xl border flex gap-3 items-start ${
                   verdict.status === 'accepted' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400' :
                   verdict.status === 'running' ? 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400' :
                   'bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400'
-                }\`}>
+                }`}>
                   {verdict.status === 'accepted' ? <Check className="w-5 h-5 shrink-0 mt-0.5" /> : 
                    verdict.status === 'running' ? <Terminal className="w-5 h-5 shrink-0 mt-0.5 animate-pulse" /> : 
                    <XCircle className="w-5 h-5 shrink-0 mt-0.5" />}
@@ -338,14 +362,14 @@ export default function CodingIDEPage() {
               </div>
               <div className="flex items-center gap-3">
                 <button 
-                  onClick={handleRunCode}
+                  onClick={() => handleRunCode('run')}
                   disabled={verdict.status === 'running'}
                   className="px-4 py-2 text-sm font-medium transition-colors border rounded-lg bg-muted/20 border-border/30 hover:bg-muted/40 text-foreground disabled:opacity-50"
                 >
                   Run Code
                 </button>
                 <button 
-                  onClick={handleRunCode}
+                  onClick={() => handleRunCode('run')}
                   disabled={verdict.status === 'running'}
                   className="flex items-center px-6 py-2 text-sm font-semibold rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors shadow-sm disabled:opacity-50"
                 >

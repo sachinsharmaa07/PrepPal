@@ -103,13 +103,13 @@ export function JobCard({
       {/* Bottom: Actions */}
       <div className="flex items-center gap-3 p-4 mt-auto border-t bg-muted/10 border-border">
         <Link 
-          href={\`/jobs/\${id}\`}
+          href={`/jobs/\${id}`}
           className="flex-1 flex items-center justify-center px-4 py-2.5 text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm"
         >
           Apply Now
         </Link>
         <Link 
-          href={\`/jobs/\${id}\`}
+          href={`/jobs/\${id}`}
           className="flex items-center justify-center px-6 py-2.5 text-sm font-medium transition-colors border rounded-lg bg-card border-border hover:bg-muted text-foreground"
         >
           Analyze <ArrowRight className="w-4 h-4 ml-1" />

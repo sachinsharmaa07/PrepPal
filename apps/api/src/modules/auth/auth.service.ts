@@ -108,10 +108,11 @@ export class AuthService {
         data: {
           email,
           name: name || 'Google User',
+          avatarUrl: picture,
           passwordHash,
           role: 'STUDENT',
           profile: {
-            create: { avatarUrl: picture },
+            create: {},
           },
         },
       });

@@ -1,0 +1,44 @@
+name: preppal
+
+include:
+  - infra/docker/judge0/docker-compose.yml
+
+services:
+  preppal-db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: preppal
+    ports:
+      - "5432:5432"
+    volumes:
+      - preppal-data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://postgres:password@preppal-db:5432/preppal?schema=public
+      PORT: 8000
+      JWT_SECRET: my-secret
+      # Note: For full functionality, populate Google AI and Groq SDK keys via a root .env
+    depends_on:
+      - preppal-db
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://api:8000
+    depends_on:
+      - api
+
+volumes:
+  preppal-data:

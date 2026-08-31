@@ -7,7 +7,7 @@ export default function JobPreparationPage({ params }: { params: { id: string } 
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in zoom-in-95 duration-500">
       
       {/* Back Navigation */}
-      <Link href={\`/jobs/\${params.id}\`} className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+      <Link href={`/jobs/\${params.id}`} className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
         <ArrowLeft className="w-4 h-4 mr-2" /> Back to Job Briefing
       </Link>
 

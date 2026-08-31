@@ -1,7 +1,88 @@
+'use client';
+
 import Link from "next/link";
-import { Mic, Video as VideoIcon, PhoneOff, Sparkles, Activity } from "lucide-react";
+import { Mic, Video as VideoIcon, PhoneOff, Sparkles, Activity, MicOff } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { useCompatChat } from "@/hooks/useCompatChat";
 
 export default function InterviewLiveRoomPage() {
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  
+  const { messages, sendMessage, isLoading } = useCompatChat({
+    api: '/api/chat',
+  });
+
+  // Initialize with a default question if chat is empty
+  useEffect(() => {
+    if (messages.length === 0) {
+      setInitialQuestion("Tell me about a system you designed that had to handle significant scale. What were the specific bottlenecks you encountered?");
+    }
+  }, []);
+
+  const [initialQuestion, setInitialQuestion] = useState<string>("Tell me about a system you designed that had to handle significant scale.");
+
+  const lastAssistantMsg = messages.filter((m) => m.role === 'assistant').pop();
+  const currentAIQuestion = lastAssistantMsg?.content || initialQuestion;
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const formData = new FormData();
+        formData.append('file', audioBlob, 'audio.webm');
+
+        try {
+          const res = await fetch('/api/transcribe', {
+            method: 'POST',
+            body: formData,
+          });
+          const data = await res.json();
+          if (data.text) {
+            sendMessage({ text: data.text });
+          }
+        } catch (error) {
+          console.error("Transcription failed", error);
+        }
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+    } catch (err) {
+      console.error("Error accessing microphone", err);
+      alert("Could not access microphone.");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      // Stop all audio tracks
+      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+    }
+  };
+
+  const toggleRecording = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
+
   return (
     <div className="h-[calc(100vh-8rem)] flex flex-col items-center justify-center animate-in fade-in duration-700">
       
@@ -19,7 +100,11 @@ export default function InterviewLiveRoomPage() {
             </div>
             
             <p className="text-2xl font-medium tracking-tight text-foreground max-w-2xl leading-relaxed">
-              "Tell me about a system you designed that had to handle significant scale. What were the specific bottlenecks you encountered?"
+              {isLoading ? (
+                <span className="animate-pulse text-muted-foreground">Thinking...</span>
+              ) : (
+                currentAIQuestion
+              )}
             </p>
           </div>
 
@@ -47,19 +132,24 @@ export default function InterviewLiveRoomPage() {
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <h3 className="font-semibold text-foreground">You</h3>
-                <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                  <Activity className="w-3 h-3" /> Recording
-                </span>
+                {isRecording && (
+                  <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                    <Activity className="w-3 h-3 animate-pulse" /> Recording
+                  </span>
+                )}
               </div>
-              <p className="text-sm text-muted-foreground">Speaking...</p>
+              <p className="text-sm text-muted-foreground">{isRecording ? "Listening to your response..." : "Click mic to speak"}</p>
             </div>
           </div>
 
           <div className="flex items-center justify-center gap-4">
-            <button className="flex items-center justify-center w-12 h-12 rounded-full border border-border bg-card hover:bg-muted text-foreground transition-colors shadow-sm">
-              <Mic className="w-5 h-5" />
+            <button 
+              onClick={toggleRecording}
+              className={`flex items-center justify-center w-12 h-12 rounded-full border transition-colors shadow-sm ${isRecording ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500' : 'border-border bg-card hover:bg-muted text-foreground'}`}
+            >
+              {isRecording ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
             </button>
-            <button className="flex items-center justify-center w-12 h-12 rounded-full border border-border bg-card hover:bg-muted text-foreground transition-colors shadow-sm">
+            <button className="flex items-center justify-center w-12 h-12 rounded-full border border-border bg-card hover:bg-muted text-foreground transition-colors shadow-sm opacity-50 cursor-not-allowed">
               <VideoIcon className="w-5 h-5" />
             </button>
             <Link 

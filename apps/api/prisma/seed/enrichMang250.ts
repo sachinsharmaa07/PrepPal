@@ -14,17 +14,31 @@ async function sleep(ms: number) {
 
 async function generateProblemData(title: string, topic: string) {
   const prompt = `
-You are an expert algorithm platform content generator (like LeetCode).
-Generate the problem statement, constraints, and 3 test cases for the classic algorithm problem: "${title}" from the topic "${topic}".
+You are an expert algorithm platform content generator.
+Generate the problem statement, boilerplates, and 10 test cases for the classic algorithm problem: "${title}" from the topic "${topic}".
 
-Return ONLY a raw JSON object with this exact schema (no markdown formatting, no comments, just valid JSON):
+Rules:
+1. Provide 10 test cases (4 where isSample is true, 6 where isSample is false). The input must be a single string containing the arguments separated by a newline, or if it's an array, stringified. Example input: "[2,7,11,15]\\n9". Example expectedOutput: "[0,1]".
+2. Provide precise boilerplate code for JAVASCRIPT, PYTHON, CPP, and JAVA.
+3. CRITICAL: The function name, parameters, and return types MUST match the exact signature required to solve the specific problem. DO NOT copy example names like 'twoSum' or 'nums, target' unless the problem is actually Two Sum!
+4. For C++ and Java, you MUST include a comment "// Implement optimal solution" inside the function.
+5. The C++ boilerplate should include necessary includes like <vector>, <string>, etc., and return a default value that compiles (e.g., return {}; or return false;).
+6. The Java boilerplate must be wrapped in class Solution { ... }.
+
+Return ONLY a raw JSON object with this exact schema:
 {
   "title": "${title}",
   "topic": "${topic}",
   "descriptionMd": "The markdown formatted problem statement including examples and constraints.",
+  "boilerplates": {
+    "JAVASCRIPT": "function ACTUAL_FUNCTION_NAME(ACTUAL_ARGS) {\\n  // Implement optimal solution\\n}",
+    "PYTHON": "def ACTUAL_FUNCTION_NAME(ACTUAL_ARGS):\\n    # Implement optimal solution\\n    pass",
+    "CPP": "#include <vector>\\nusing namespace std;\\n\\nACTUAL_RETURN_TYPE ACTUAL_FUNCTION_NAME(ACTUAL_ARGS) {\\n    // Implement optimal solution\\n    return DEFAULT_VALUE;\\n}",
+    "JAVA": "class Solution {\\n    public ACTUAL_RETURN_TYPE ACTUAL_FUNCTION_NAME(ACTUAL_ARGS) {\\n        // Implement optimal solution\\n        return DEFAULT_VALUE;\\n    }\\n}"
+  },
   "testCases": [
-    { "input": "[2,7,11,15], 9", "expectedOutput": "[0,1]" },
-    { "input": "[3,2,4], 6", "expectedOutput": "[1,2]" }
+    { "input": "[2,7,11,15]\\n9", "expectedOutput": "[0,1]", "isSample": true },
+    { "input": "[3,2,4]\\n6", "expectedOutput": "[1,2]", "isSample": false }
   ]
 }
 `;
@@ -32,8 +46,10 @@ Return ONLY a raw JSON object with this exact schema (no markdown formatting, no
   try {
     const response = await groq.chat.completions.create({
       messages: [{ role: 'user', content: prompt }],
-      model: 'llama-3.1-8b-instant',
-      response_format: { type: 'json_object' }
+      model: 'openai/gpt-oss-20b',
+      response_format: { type: 'json_object' },
+      temperature: 0.1,
+      max_tokens: 4096,
     });
     
     const content = response.choices[0]?.message?.content || '{}';
@@ -53,8 +69,8 @@ async function main() {
     console.log("Found existing " + enrichedData.length + " enriched problems. Resuming...");
   }
 
-  const limit = 15;
-  const problemsToProcess = rawData.slice(enrichedData.length, limit);
+  const TARGET_PROBLEMS = 250;
+  const problemsToProcess = rawData.slice(enrichedData.length, TARGET_PROBLEMS);
 
   if (problemsToProcess.length === 0) {
     console.log("Already enriched the target number of problems.");

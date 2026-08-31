@@ -137,7 +137,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
 
           {/* The Magic "Prepare Me" Button */}
           <Link 
-            href={\`/jobs/\${job.id}/prepare\`}
+            href={`/jobs/\${job.id}/prepare`}
             className="flex items-center justify-between p-6 rounded-2xl bg-gradient-to-r from-primary to-cyan-500 text-white shadow-[0_0_30px_rgba(79,70,229,0.3)] hover:scale-[1.02] transition-transform group cursor-pointer"
           >
             <div>

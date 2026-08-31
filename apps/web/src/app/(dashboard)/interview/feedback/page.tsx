@@ -137,8 +137,8 @@ function ScoreBar({ label, score, isWeakness }: { label: string; score: number; 
       <span className="text-sm font-medium text-muted-foreground w-32 truncate">{label}</span>
       <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
         <div 
-          className={\`h-full rounded-full transition-all duration-1000 ease-out \${isWeakness ? 'bg-amber-500' : 'bg-primary'}\`} 
-          style={{ width: \`\${score}%\` }}
+          className={`h-full rounded-full transition-all duration-1000 ease-out \${isWeakness ? 'bg-amber-500' : 'bg-primary'}`} 
+          style={{ width: `\${score}%` }}
         />
       </div>
       <span className="text-sm font-[family-name:var(--font-jetbrains-mono)] font-bold text-foreground w-8 text-right">{score}</span>

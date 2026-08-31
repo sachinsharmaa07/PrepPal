@@ -1,36 +1,33 @@
 import { z } from 'zod';
 
 export const ResumeParsedSchema = z.object({
-  contact: z.object({
-    email: z.string().nullable(),
-    phone: z.string().nullable(),
-    github: z.string().nullable(),
-    linkedin: z.string().nullable(),
-  }),
+  name: z.string().nullable(),
+  email: z.string().nullable(),
+  skills: z.array(z.string()),
   education: z.array(
     z.object({
       degree: z.string(),
-      institution: z.string(),
+      field: z.string().nullable(),
+      institution: z.string().nullable(),
       year: z.string().nullable(),
+    })
+  ),
+  projects: z.array(
+    z.object({
+      name: z.string(),
+      description: z.string().nullable(),
+      technologies: z.array(z.string()),
     })
   ),
   experience: z.array(
     z.object({
       role: z.string(),
       company: z.string(),
-      duration: z.string(),
-      description: z.string(),
+      duration: z.string().nullable(),
+      description: z.string().nullable(),
     })
   ),
-  skills: z.array(z.string()),
-  projects: z.array(
-    z.object({
-      title: z.string(),
-      description: z.string(),
-      techStack: z.array(z.string()),
-    })
-  ),
-  summary: z.string().nullable(),
+  certifications: z.array(z.string()),
 });
 
 export const getResumeParsePrompt = (rawText: string) => `

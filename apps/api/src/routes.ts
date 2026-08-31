@@ -3,6 +3,9 @@ import authRoutes from './modules/auth/auth.routes';
 import resumeRoutes from './modules/resume/resume.routes';
 import interviewsRoutes from './modules/interviews/interviews.routes';
 import jobsRoutes from './modules/jobs/jobs.routes';
+import matchingRoutes from './modules/matching/matching.routes';
+
+import { codingRoutes } from './modules/coding/coding.routes';
 
 export const setupRoutes = (app: Express) => {
   // Health check
@@ -14,4 +17,6 @@ export const setupRoutes = (app: Express) => {
   app.use('/v1/resume', resumeRoutes);
   app.use('/v1/interviews', interviewsRoutes);
   app.use('/v1/jobs', jobsRoutes);
+  app.use('/v1/matching', matchingRoutes);
+  app.use('/v1/coding', codingRoutes);
 };

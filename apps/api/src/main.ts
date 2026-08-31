@@ -1,17 +1,42 @@
+import 'dotenv/config';
 import express, { Express, Request, Response } from 'express';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 import cors from 'cors';
 import helmet from 'helmet';
-import dotenv from 'dotenv';
+import compression from 'compression';
+import rateLimit from 'express-rate-limit';
 import { setupRoutes } from './routes';
-
-dotenv.config();
+import { setupSocket } from './socket';
 
 const app: Express = express();
 const port = process.env.PORT || 8080;
 
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST']
+  }
+});
+
+setupSocket(io);
+
 // Middleware
 app.use(helmet());
 app.use(cors());
+app.use(compression());
+
+// Basic Rate Limiting: 100 requests per 15 minutes per IP
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, 
+  max: 100, 
+  message: { success: false, error: 'Too many requests, please try again later.' },
+  standardHeaders: true, 
+  legacyHeaders: false, 
+});
+app.use('/api', apiLimiter);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -30,6 +55,6 @@ app.use((err: any, req: Request, res: Response, next: express.NextFunction) => {
   });
 });
 
-app.listen(port, () => {
+httpServer.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
-});
+});import './workers/execution.worker';

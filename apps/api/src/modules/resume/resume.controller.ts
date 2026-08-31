@@ -9,6 +9,26 @@ export class ResumeController {
     this.resumeService = new ResumeService();
   }
 
+  upload = async (req: Request, res: Response) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json(error('VALIDATION_ERROR', 'PDF file is required'));
+      }
+
+      const fileBuffer = req.file.buffer;
+      const jobDescription = req.body.jobDescription || '';
+      const jobRequiredSkills = req.body.jobRequiredSkills ? JSON.parse(req.body.jobRequiredSkills) : [];
+      const userId = req.body.userId || 'dummy-user-id'; // Use dummy for MVP
+
+      const result = await this.resumeService.analyzeResume(fileBuffer, jobDescription, jobRequiredSkills, userId);
+      
+      res.status(200).json(success(result));
+    } catch (err: any) {
+      console.error(err);
+      res.status(500).json(error('INTERNAL_ERROR', err.message || 'Failed to analyze resume'));
+    }
+  };
+
   analyze = async (req: Request, res: Response) => {
     try {
       // In a real scenario, the file would come via multer or pre-signed S3 URL download

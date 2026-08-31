@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-const mainNav = [
+const studentNav = [
   { title: "Home", href: "/dashboard", icon: Compass },
   { title: "Jobs", href: "/jobs", icon: Briefcase },
   { title: "Career", href: "/career", icon: Sparkles },
@@ -29,9 +29,18 @@ const mainNav = [
   { title: "Insights", href: "/insights", icon: LineChart },
 ];
 
-export function Sidebar() {
+const recruiterNav = [
+  { title: "Dashboard", href: "/recruiter/dashboard", icon: Compass },
+  { title: "My Jobs", href: "/recruiter/jobs", icon: Briefcase },
+  { title: "Post a Job", href: "/recruiter/jobs/new", icon: Sparkles },
+  { title: "Applicants", href: "/recruiter/applicants", icon: Inbox },
+  { title: "Insights", href: "/recruiter/insights", icon: LineChart },
+];
+
+export function Sidebar({ isRecruiter = false }: { isRecruiter?: boolean }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const navItems = isRecruiter ? recruiterNav : studentNav;
 
   return (
     <aside 
@@ -65,8 +74,8 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 px-3 py-6 space-y-1 overflow-y-auto">
-        {mainNav.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(\`\${item.href}/\`);
+        {navItems.map((item) => {
+          const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
           return (
             <Link
               key={item.href}
