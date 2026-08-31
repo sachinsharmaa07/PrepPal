@@ -5,21 +5,21 @@ RUN npm install -g pnpm
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/web/package.json ./apps/web/
+COPY apps/api/package.json ./apps/api/
 COPY packages/types/package.json ./packages/types/
 
 RUN pnpm install --frozen-lockfile
 
 COPY apps/web ./apps/web
-COPY packages/types ./packages/types
 COPY apps/api/prisma ./apps/api/prisma
+COPY packages/types ./packages/types
+
+WORKDIR /app/apps/api
+RUN pnpm prisma generate
 
 WORKDIR /app/apps/web
 # Next.js telemetry disable
 ENV NEXT_TELEMETRY_DISABLED 1
-
-# Generate prisma client for Next.js API routes
-RUN pnpm prisma generate --schema=../../apps/api/prisma/schema.prisma
-
 RUN pnpm build
 
 FROM node:20-slim
